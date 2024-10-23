@@ -4,6 +4,7 @@
 #include <net/if.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <sys/socket.h>
  
 int cria_raw_socket(char* nome_interface_rede) {
     // Cria arquivo para o socket sem qualquer protocolo
@@ -12,6 +13,8 @@ int cria_raw_socket(char* nome_interface_rede) {
         fprintf(stderr, "Erro ao criar socket: Verifique se você é root!\n");
         exit(-1);
     }
+
+    return soquete;
  
     int ifindex = if_nametoindex(nome_interface_rede);
  
@@ -37,3 +40,12 @@ int cria_raw_socket(char* nome_interface_rede) {
  
     return soquete;
 }
+
+int main(){
+    
+    // cria socker com a interface de rede wlan0
+    int socket = cria_raw_socket("wlan0");
+
+    return 0;
+}
+
