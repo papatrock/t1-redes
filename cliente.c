@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include <linux/if_packet.h>
 #include <sys/socket.h>
@@ -26,7 +27,7 @@ int criasocket(char *interface)
     
     if(soquete == -1)
     {
-        fprintf(stderr,"Erro ao criar socket\n");
+        fprintf(stderr,"Erro ao criar socket, verifique se você é root\n");
         exit(-1);
     }
    
@@ -79,11 +80,13 @@ int criasocket(char *interface)
 
     /**
      *  #include <sys/socket.h>
-     *      int setsockopt(int socket, int level, int option_name, const void       *      option_value, socklen_t ,option_len
+     *      int setsockopt(int socket, int level, int option_name, const void       *      option_value, socklen_t ,option_len);
+     *  Seta varias opções do socket
      *
      */
-    
-
+    if(setsockopt(soquete, SOL_PACKET, PACKET_ADD_MEMBERSHIP, &mr, sizeof(mr)) ==-1){
+        fprintf(stderr,"Erro ao faze setsockopt: Verifique se a interface de rede foi especificada corretamente\n");
+    }
     return soquete;
 
 }
@@ -92,6 +95,42 @@ int criasocket(char *interface)
 int main(){
 
     int soquete = criasocket("wlan0"); 
-    return soquete;
+   
+    /*
+     * #include <sys/socket.h>
+     *  int listen(int sockfd, int backlog);
+     *  Marca o socket como socket "passivo", isso é, um socket que que ira
+     *  ser usado para aceitar request utilizando o accept()
+     *      backlog:
+     *          define o tamanho maximo no qual a fila de conecções pode
+     *          chegar
+     */
+    if(listen(soquete,20))
+    {
+        fprintf(stderr,"Erro no listen\n");
+        exit(1);
+    }
+
+    while(1)
+    {
+        int clientsock;
+        struct sockaddr_un client_addr;
+        int addrlen = sizeof (client_addr);
+        char * resposta;
+
+        clientsock = accept(soquete, (struct sockaddr*) &client_addr, &addrlen);
+        printf("Cliente conectador\n");
+
+        resposta = "Welcome, cliente!\n";
+        write(clientsock, resposta, strlen(respota)+1);
+
+        close (clientsock);
+
+    }
+
+    close(soquete);
+    unlink ("./socket");
+    
+    return 0;
 
 }
