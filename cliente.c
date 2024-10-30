@@ -13,7 +13,7 @@
 #include <errno.h>
 
 #define MEU_PROTOCOLO 0x88b5
-#define INTERFACE "wlan0"
+#define INTERFACE "eno1"
 
 int criasocket(char *interface)
 {
@@ -100,7 +100,7 @@ int criasocket(char *interface)
 
 
 int main(){
-	//struct sockaddr_ll endereco;
+
     int soquete = criasocket(INTERFACE); 
     
     int ifindex = if_nametoindex(INTERFACE);
@@ -109,7 +109,7 @@ int main(){
     endereco.sll_protocol = htons(ETH_P_ALL);
     endereco.sll_ifindex = ifindex;
 
-	const char *mensagem = "SAAAAAAAAAAAAAAAAAAAAAAAALVE";
+	const char *mensagem = "seila mano coloca qualquer coisa pra ve se muda os dados ali";
 	if(sendto(soquete,mensagem,strlen(mensagem),0,(struct sockaddr*)&endereco, sizeof(endereco)) ==-1)
 	{
 		printf("erro ao enviar mensagem\n");
