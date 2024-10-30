@@ -7,12 +7,15 @@
 #include <sys/socket.h>
 #include <net/if.h>
 #include <arpa/inet.h> // para htons
+#include <netinet/in.h> // Para htons
+#include <linux/if_ether.h>
+
 
 #define MEU_PROTOCOLO 0x88b5
 
 int criasocket(char *interface)
 {
-    int soquete = socket(AF_PACKET, SOCK_RAW, htons(MEU_PROTOCOLO));
+    int soquete = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
     
     if(soquete == -1)
     {
@@ -24,7 +27,7 @@ int criasocket(char *interface)
 
     struct sockaddr_ll endereco = {0};
     endereco.sll_family = AF_PACKET;
-    endereco.sll_protocol = htons(MEU_PROTOCOLO);
+    endereco.sll_protocol = htons(ETH_P_ALL);
     endereco.sll_ifindex = ifindex;
 
     if(bind(soquete, (struct sockaddr*) &endereco, sizeof(endereco)) == -1)
@@ -45,12 +48,15 @@ int criasocket(char *interface)
 
 int main()
 {
-    int soquete = criasocket("wlan0");
+    int soquete = criasocket("enp0s31f6");
 
-    while (1)
+while (1)
     {
         char buffer[2048];
-        int bytes_recebidos = recv(soquete, buffer, sizeof(buffer), 0);
+        struct sockaddr_ll addr;
+        socklen_t addr_len = sizeof(addr);
+        
+        int bytes_recebidos = recvfrom(soquete, buffer, sizeof(buffer), 0, (struct sockaddr*)&addr, &addr_len);
         
         if (bytes_recebidos == -1)
         {
@@ -60,7 +66,6 @@ int main()
         
         printf("Recebido %d bytes\n", bytes_recebidos);
     }
-
     close(soquete);
     return 0;
 }
