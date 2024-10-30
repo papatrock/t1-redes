@@ -13,7 +13,7 @@
 #include <errno.h>
 
 #define MEU_PROTOCOLO 0x88b5
-
+#define INTERFACE "wlan0"
 
 int criasocket(char *interface)
 {
@@ -101,7 +101,7 @@ int criasocket(char *interface)
 
 int main(){
 	//struct sockaddr_ll endereco;
-    int soquete = criasocket("enp0s31f6"); 
+    int soquete = criasocket(INTERFACE); 
    
 
 	const char *mensagem = "SAAAAAAAAAAAAAAAAAAAAAAAALVE";
