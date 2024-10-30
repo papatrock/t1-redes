@@ -9,8 +9,9 @@
 #include <arpa/inet.h> // para htons
 #include <netinet/in.h> // Para htons
 #include <linux/if_ether.h>
+#include <netinet/ip.h>
 
-
+#define INTERFACE "eno1"
 #define MEU_PROTOCOLO 0x88b5
 
 int criasocket(char *interface)
@@ -48,7 +49,7 @@ int criasocket(char *interface)
 
 int main()
 {
-    int soquete = criasocket("enp0s31f6");
+    int soquete = criasocket(INTERFACE);
 
 while (1)
     {
@@ -64,7 +65,12 @@ while (1)
             continue;
         }
         
-        printf("Recebido %d bytes\n", bytes_recebidos);
+        //printf("Recebido %d bytes\n", bytes_recebidos);
+
+	//processa pacote
+	struct iphdr *ip_header = (struct iphdr *)buffer;
+        printf("Recebido pacote de %s\n", inet_ntoa(*(struct in_addr *)&ip_header->saddr));
+        printf("Tamanho do pacote: %d bytes\n", bytes_recebidos);
     }
     close(soquete);
     return 0;
