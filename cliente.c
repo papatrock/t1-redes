@@ -5,6 +5,12 @@
 #include <linux/if_packet.h>
 #include <sys/socket.h>
 #include <net/if.h>
+#include <linux/if_arp.h>
+#include <arpa/inet.h>
+#include <net/ethernet.h>
+#include <unistd.h>
+
+#include <errno.h>
 
 #define MEU_PROTOCOLO 0x88b5
 
@@ -23,7 +29,7 @@ int criasocket(char *interface)
      *  protocol:
      *      
      */ 
-    int soquete = socket(AF_PACKET, SOCK_RAW,MEU_PROTOCOLO);
+    int soquete = socket(AF_PACKET, SOCK_RAW,htons(ETH_P_ALL));
     
     if(soquete == -1)
     {
@@ -40,15 +46,16 @@ int criasocket(char *interface)
      */
 
     int ifindex = if_nametoindex(interface);
-   
-
-    struct sockaddr_ll endereco = {0};
-
-    endereco.sll_family = AF_PACKET;
-    endereco.sll_protocol = MEU_PROTOCOLO;
-    endereco.sll_ifindex = ifindex;
+   if (ifindex == 0) {
+        fprintf(stderr, "Erro: a interface %s não existe\n", interface);
+        exit(EXIT_FAILURE);
+    }
 
 
+	struct sockaddr_ll endereco = {0};
+	endereco.sll_family = AF_PACKET;
+	endereco.sll_protocol = htons(ETH_P_ALL);
+	endereco.sll_ifindex = ifindex;
     /*
      *  #include <sys/socket.h>
      *  int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen)
@@ -56,9 +63,10 @@ int criasocket(char *interface)
      *      pelo sockfd. addrlen especifica o tamanho da estrutura de endereço
      *      apontado pelo addr (em bytes)
      */
-    if(bind(soquete,(struct sockaddr*) &endereco, sizeof(endereco)) == -1)
+    if(bind(soquete,(struct sockaddr*)&endereco, sizeof(endereco)) == -1)
     {
-        fprintf(stderr,"Erro ao fazer bind no socket\n");
+        fprintf(stderr, "Erro ao fazer bind no socket: %s\n", strerror(errno));
+
         exit(-1);
     }
    
@@ -84,53 +92,28 @@ int criasocket(char *interface)
      *  Seta varias opções do socket
      *
      */
-    if(setsockopt(soquete, SOL_PACKET, PACKET_ADD_MEMBERSHIP, &mr, sizeof(mr)) ==-1){
+    if(setsockopt(soquete, SOL_PACKET, PACKET_ADD_MEMBERSHIP, &mr, sizeof(mr)) ==-1)
         fprintf(stderr,"Erro ao faze setsockopt: Verifique se a interface de rede foi especificada corretamente\n");
-    }
     return soquete;
 
 }
 
 
 int main(){
-
-    int soquete = criasocket("wlan0"); 
+	//struct sockaddr_ll endereco;
+    int soquete = criasocket("enp0s31f6"); 
    
-    /*
-     * #include <sys/socket.h>
-     *  int listen(int sockfd, int backlog);
-     *  Marca o socket como socket "passivo", isso é, um socket que que ira
-     *  ser usado para aceitar request utilizando o accept()
-     *      backlog:
-     *          define o tamanho maximo no qual a fila de conecções pode
-     *          chegar
-     */
-    if(listen(soquete,20))
-    {
-        fprintf(stderr,"Erro no listen\n");
-        exit(1);
-    }
 
-    while(1)
-    {
-        int clientsock;
-        struct sockaddr_un client_addr;
-        int addrlen = sizeof (client_addr);
-        char * resposta;
+	const char *mensagem = "SAAAAAAAAAAAAAAAAAAAAAAAALVE";
+	/*if(sendto(soquete,mensagem,strlen(mensagem),0,(struct sockaddr*)&endereco, sizeof(endereco)) ==-1)
 
-        clientsock = accept(soquete, (struct sockaddr*) &client_addr, &addrlen);
-        printf("Cliente conectador\n");
-
-        resposta = "Welcome, cliente!\n";
-        write(clientsock, resposta, strlen(respota)+1);
-
-        close (clientsock);
-
-    }
-
-    close(soquete);
-    unlink ("./socket");
-    
+	{
+		perror("erro ao enviar mensagem");
+	}
+	else
+		printf("Mensagem enviada com sucesso\n");
+*/
+	close(soquete);
     return 0;
 
 }
