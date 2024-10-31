@@ -1,6 +1,6 @@
 # Descrição do trabalho
 * Implementar um servidor para backup de arquivos usando Raw Sockets
-* A implementação deve ter os seguintes comandos:
+* A implementação deve ter os seguintes comandos :
     *    backup <nome.arq>
         *    Faz o backup de um arquivo do cliente para o servidor
     *    restaur <nome.arq>
