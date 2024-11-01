@@ -28,7 +28,8 @@ int criasocket(char *interface)
     mr.mr_type = PACKET_MR_PROMISC;
 
     if(setsockopt(soquete, SOL_PACKET, PACKET_ADD_MEMBERSHIP, &mr, sizeof(mr)) == -1) {
-        fprintf(stderr,"Erro ao fazer setsockopt: Verifique se a interface de rede foi especificada corretamente\n");
+        fprintf(stderr,"Erro ao fazer setsockopt: Verifique se a interface de rede foi especificada corretamente\ndefina a interface no soquete-lib.h\n");
+        exit(-1);
     }
     return soquete;
 }

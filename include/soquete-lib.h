@@ -10,7 +10,7 @@
 #include <linux/if_ether.h>
 #include <netinet/ip.h>
 
-#define INTERFACE "eno1"
+#define INTERFACE "wlan0"
 #define MEU_PROTOCOLO 0x88b5
 
 int criasocket(char *interface);
