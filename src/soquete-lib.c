@@ -1,6 +1,6 @@
 #include "../include/soquete-lib.h"
 
-int criasocket(char *interface)
+int criaSocket(char *interface)
 {
     int soquete = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
     

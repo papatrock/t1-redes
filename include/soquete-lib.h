@@ -13,4 +13,16 @@
 #define INTERFACE "wlan0"
 #define MEU_PROTOCOLO 0x88b5
 
-int criasocket(char *interface);
+struct protocolo{
+    unsigned int marcador : 8;
+    unsigned int tamanho : 6;
+    unsigned int sequencia : 5;
+    unsigned int tipo : 5;
+    unsigned char* dados;  //TODO alocar 63 bytes na inicialização
+    unsigned int CRC : 8;
+};
+
+typedef struct protocolo protocolo_t;
+
+
+int criaSocket(char *interface);
