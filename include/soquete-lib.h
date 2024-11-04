@@ -10,7 +10,7 @@
 #include <linux/if_ether.h>
 #include <netinet/ip.h>
 
-#define INTERFACE "enp0s31f6"
+#define INTERFACE "wlan0"
 #define MEU_PROTOCOLO 0x88b5
 
 struct protocolo{
