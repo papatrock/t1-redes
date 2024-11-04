@@ -1,5 +1,26 @@
 #include "../include/servidor.h"
 
+void enviaResposta(int soquete)
+{
+
+    int ifindex = if_nametoindex(INTERFACE);
+    struct sockaddr_ll endereco = {0};
+    endereco.sll_family = AF_PACKET;
+    endereco.sll_protocol = htons(ETH_P_ALL);
+    endereco.sll_ifindex = ifindex;
+
+	char *mensagem = "ACK";
+    if(sendto(soquete,&mensagem,strlen(mensagem),0,(struct sockaddr*)&endereco, sizeof(endereco)) ==-1)
+	{
+		printf("\nerro ao enviar resposta\n");
+	}
+	else{
+		printf("Resposta enviada com sucesso\n");
+
+    }
+
+}
+
 
 int main()
 {
@@ -28,12 +49,14 @@ int main()
             if (bytes_recebidos > 0 && buffer[0] != 0b01111110)
                 continue;
 
+
+
             printf("Pacote recebido (%d bytes):\n", bytes_recebidos);
             for (ssize_t i = 0; i < bytes_recebidos; i++) {
                 printf("%02x ", (unsigned char)buffer[i]);
                 if ((i + 1) % 16 == 0) printf("\n");
             }
-            printf("\n");
+            enviaResposta(soquete);
         }
 
     }
