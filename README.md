@@ -22,6 +22,21 @@ Mensagem:
 Maior mensagem: 63 bytes (nome do arquivo)
 Para e espera
 
+# Instruções
+| Tipo  | Definição
+| ------------- | ------------- |
+| 00000  | ACK
+| 00001 | NACK  |
+| 00010 | Ok  |
+| 00100 | Backup  |
+| 00101 | Restaura  |
+| 00110 | Verifica  |
+| 01110 | OK + TAM  |
+| 01101 | OK + checksum  |
+| 10000 | Dados  |
+| 10001 | Fim da transmissão de dados  |
+| 11111 | Erro  |
+
 
 # Links
 
