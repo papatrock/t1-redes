@@ -18,43 +18,38 @@ protocolo_t criaMensagem(char *dados, unsigned int tipo) {
     return mensagem;
 }
 
-int recebeResposta(int soquete, struct sockaddr_ll endereco)
-{
-    int resposta = 0;
+int recebeResposta(int soquete) {
+    unsigned char *buffer = (unsigned char *)malloc(68 * sizeof(unsigned char));
+    if (!buffer) {
+        printf("erro ao alocar buffer\n");
+        return -1;
+    }
 
-    while(!resposta)
-    {
-        unsigned char *buffer = (unsigned char *)malloc(68 * sizeof(unsigned char));
-        if(!buffer){
-            printf("erro ao alocar buffer\n");
-            return -1;
-        }
-
-        struct sockaddr_ll addr;
-        socklen_t addr_len = sizeof(addr);
+    struct sockaddr_ll addr;
+    socklen_t addr_len = sizeof(addr);
          
-        int bytes_recebidos = recvfrom(soquete, buffer, 68, 0, (struct sockaddr*)&addr, &addr_len);
-        
-        if (bytes_recebidos == -1)
-        {
-            fprintf(stderr, "Erro ao receber dados\n");
-            return 0;
+    int bytes_recebidos = recvfrom(soquete, buffer, 68, 0, (struct sockaddr*)&addr, &addr_len);
+    
+    if (bytes_recebidos == -1) {
+        fprintf(stderr, "Erro ao receber dados\n");
+        free(buffer);
+        return 0;
+    } else {
+        printf("Pacote recebido (%d bytes):\n", bytes_recebidos);
+        for (ssize_t i = 0; i < bytes_recebidos; i++) {
+            printf("%02x ", (unsigned char)buffer[i]);
+            if ((i + 1) % 16 == 0) printf("\n");
         }
-        else{
-            if (bytes_recebidos > 0 && buffer[0] == 0b01111110)
-            {
-
-            printf("Pacote recebido (%d bytes):\n", bytes_recebidos);
-            for (ssize_t i = 0; i < bytes_recebidos; i++) {
-                printf("%02x ", (unsigned char)buffer[i]);
-                if ((i + 1) % 16 == 0) printf("\n");
-            }
-            printf("\n");
-            resposta = 1;
-            }
+        printf("\n");
+        
+        if (bytes_recebidos >= 3 && memcmp(buffer, "ACK", 3) == 0) {
+            free(buffer);
+            return 1; // Resposta válida recebida
         }
     }
-    return resposta;
+
+    free(buffer);
+    return 0;
 }
 
 int main(){
@@ -75,7 +70,7 @@ int main(){
 	}
 	else{
 		printf("Mensagem enviada com sucesso, aguardando resposta\n");
-        int resposta = recebeResposta(soquete, endereco);
+        int resposta = recebeResposta(soquete);
         printf("resposta = %d\n",resposta);
 
     }

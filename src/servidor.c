@@ -10,7 +10,7 @@ void enviaResposta(int soquete)
     endereco.sll_ifindex = ifindex;
 
 	char *mensagem = "ACK";
-    if(sendto(soquete,&mensagem,strlen(mensagem),0,(struct sockaddr*)&endereco, sizeof(endereco)) ==-1)
+    if(sendto(soquete,mensagem,strlen(mensagem),0,(struct sockaddr*)&endereco, sizeof(endereco)) ==-1)
 	{
 		printf("\nerro ao enviar resposta\n");
 	}
