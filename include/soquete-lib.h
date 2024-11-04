@@ -10,7 +10,7 @@
 #include <linux/if_ether.h>
 #include <netinet/ip.h>
 
-#define INTERFACE "wlan0"
+#define INTERFACE "lo"
 #define MEU_PROTOCOLO 0x88b5
 
 struct protocolo{
@@ -18,7 +18,7 @@ struct protocolo{
     unsigned int tamanho : 6;
     unsigned int sequencia : 5;
     unsigned int tipo : 5;
-    unsigned char* dados;  //TODO alocar 63 bytes na inicialização
+    unsigned char dados[63];
     unsigned int CRC : 8;
 };
 

@@ -8,7 +8,7 @@ int main()
     while (1)
         {
         // buffer precisa ter no minimo 68 bytes
-        unsigned char *buffer = (unsigned char *)malloc(63 * sizeof(unsigned char));
+        unsigned char *buffer = (unsigned char *)malloc(68 * sizeof(unsigned char));
         if(!buffer){
             printf("erro ao alocar buffer\n");
             return -1;
