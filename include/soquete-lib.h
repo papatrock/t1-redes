@@ -24,5 +24,6 @@ struct protocolo{
 
 typedef struct protocolo protocolo_t;
 
-
 int criaSocket(char *interface);
+
+void inicializaSockaddr_ll(struct sockaddr_ll *sockaddr, int ifindex, unsigned char *dest_mac);

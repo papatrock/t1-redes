@@ -7,6 +7,5 @@ void enviaResposta(int soquete, struct sockaddr_ll endereco, unsigned char *src_
 void extraiMacFonte(unsigned char *packet, unsigned char *src_mac);
 
 
-void inicializaSockaddr_ll(struct sockaddr_ll *sockaddr, int ifindex, unsigned char *dest_mac);
 
 

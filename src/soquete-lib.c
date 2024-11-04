@@ -33,3 +33,14 @@ int criaSocket(char *interface)
     }
     return soquete;
 }
+
+void inicializaSockaddr_ll(struct sockaddr_ll *sockaddr, int ifindex, unsigned char *dest_mac) {
+    memset(sockaddr, 0, sizeof(struct sockaddr_ll));
+    sockaddr->sll_family = AF_PACKET;
+    sockaddr->sll_protocol = htons(ETH_P_IP);
+    sockaddr->sll_ifindex = ifindex;
+    if(dest_mac != 0){
+        sockaddr->sll_halen = ETH_ALEN;
+        memcpy(sockaddr->sll_addr, dest_mac, 6); // Endereço MAC de destino
+    }
+}
