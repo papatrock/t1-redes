@@ -4,19 +4,6 @@
  *fazer diferentes tipos de mensagem dependendo do tipo
  *
  */
-protocolo_t criaMensagem(char *dados, unsigned int tipo) {
-    protocolo_t mensagem; 
-
-
-    mensagem.marcador = 0b01111110;
-    mensagem.tamanho = 0b000000;
-    mensagem.sequencia = 0b00000;
-    mensagem.tipo = tipo;
-    strncpy((char *)mensagem.dados, dados, sizeof(mensagem.dados) - 1);
-    mensagem.CRC = 0b00000000;
-
-    return mensagem;
-}
 
 int recebeResposta(int soquete) {
     unsigned char *buffer = (unsigned char *)malloc(68 * sizeof(unsigned char));

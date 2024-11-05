@@ -44,3 +44,17 @@ void inicializaSockaddr_ll(struct sockaddr_ll *sockaddr, int ifindex, unsigned c
         memcpy(sockaddr->sll_addr, dest_mac, 6); // Endereço MAC de destino
     }
 }
+
+protocolo_t criaMensagem(char *dados, unsigned int tipo) {
+    protocolo_t mensagem; 
+
+
+    mensagem.marcador = 0b01111110;
+    mensagem.tamanho = 0b000000;
+    mensagem.sequencia = 0b00000;
+    mensagem.tipo = tipo;
+    strncpy((char *)mensagem.dados, dados, sizeof(mensagem.dados) - 1);
+    mensagem.CRC = 0b00000000;
+
+    return mensagem;
+}
