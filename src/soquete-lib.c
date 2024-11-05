@@ -58,3 +58,7 @@ protocolo_t criaMensagem(char *dados, unsigned int tipo) {
 
     return mensagem;
 }
+
+void debugMensagem(protocolo_t mensagem){
+
+}

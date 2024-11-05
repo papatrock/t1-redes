@@ -4,18 +4,11 @@
 #include <arpa/inet.h>
 
 void enviaResposta(int soquete, struct sockaddr_ll endereco, unsigned char *src_mac) {
-    unsigned char resposta[ETH_HLEN + 3]; // Cabeçalho Ethernet (14 bytes) + "ACK" (3 bytes)
 
-    memcpy(resposta, endereco.sll_addr, 6);      // MAC de destino
-    memcpy(resposta + 6, src_mac, 6);            // MAC de origem
-    resposta[12] = 0x08;                         // Ethertype (IPv4)
-    resposta[13] = 0x00;
 
-    resposta[14] = 'A';
-    resposta[15] = 'C';
-    resposta[16] = 'K';
+	protocolo_t resposta = criaMensagem("ACK",0b00000);
 
-    if (sendto(soquete, resposta, sizeof(resposta), 0, (struct sockaddr*)&endereco, sizeof(endereco)) == -1) {
+    if (sendto(soquete, &resposta, sizeof(resposta), 0, (struct sockaddr*)&endereco, sizeof(endereco)) == -1) {
         perror("Erro ao enviar resposta");
     } else {
         printf("Resposta enviada com sucesso\n");

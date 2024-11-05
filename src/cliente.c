@@ -1,9 +1,5 @@
 #include "../include/cliente.h"
 
-/* TODO 
- *fazer diferentes tipos de mensagem dependendo do tipo
- *
- */
 
 int recebeResposta(int soquete) {
     unsigned char *buffer = (unsigned char *)malloc(68 * sizeof(unsigned char));
