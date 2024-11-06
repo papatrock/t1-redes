@@ -50,10 +50,7 @@ int main() {
                 continue;
 
             printf("Pacote recebido (%d bytes):\n", bytes_recebidos);
-            for (ssize_t i = 0; i < bytes_recebidos; i++) {
-                printf("%02x ", (unsigned char)buffer[i]);
-                if ((i + 1) % 16 == 0) printf("\n");
-            }
+            printMensagem(buffer); 
             extraiMacFonte(buffer, macFonte);
             
             printf("MAC de origem: %02x:%02x:%02x:%02x:%02x:%02x\n", 

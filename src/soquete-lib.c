@@ -59,6 +59,43 @@ protocolo_t criaMensagem(char *dados, unsigned int tipo) {
     return mensagem;
 }
 
-void debugMensagem(protocolo_t mensagem){
+void print_byte_as_binary(unsigned char byte) {
+    for (int i = 7; i >= 0; i--) {
+        printf("%d", (byte >> i) & 1);
+    }
+}
 
+void printMensagem(unsigned char *mensagem) {
+    printf("Marcador: ");
+    print_byte_as_binary(mensagem[0]);
+    printf("\n");
+
+    printf("Tamanho: ");
+    for (int i = 7; i >= 2; i--) {
+        printf("%d", (mensagem[1] >> i) & 1);
+    }
+    printf("\n");
+
+    printf("Sequência: ");
+    for (int i = 7; i >= 3; i--) {
+        printf("%d", (mensagem[2] >> i) & 1);
+    }
+    printf("\n");
+
+    /*printf("Dados: ");
+    for (int i = 3; i < 66; i++) {
+        print_byte_as_binary(mensagem[i]);
+        printf(" ");
+    }
+    printf("\n");*/
+
+    printf("Dados (ASCII): ");
+    for (int i = 3; i < 63; i++) {
+        printf("%c", mensagem[i]);
+    }
+    printf("\n");
+
+    printf("CRC: ");
+    print_byte_as_binary(mensagem[66]);
+    printf("\n");
 }

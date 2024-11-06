@@ -1,11 +1,11 @@
 #include "../include/cliente.h"
 
 
-int recebeResposta(int soquete) {
+unsigned char *recebeResposta(int soquete) {
     unsigned char *buffer = (unsigned char *)malloc(68 * sizeof(unsigned char));
     if (!buffer) {
         printf("erro ao alocar buffer\n");
-        return -1;
+        return NULL;
     }
 
     struct sockaddr_ll addr;
@@ -16,23 +16,11 @@ int recebeResposta(int soquete) {
     if (bytes_recebidos == -1) {
         fprintf(stderr, "Erro ao receber dados\n");
         free(buffer);
-        return 0;
-    } else {
-        printf("Pacote recebido (%d bytes):\n", bytes_recebidos);
-        for (ssize_t i = 0; i < bytes_recebidos; i++) {
-            printf("%02x ", (unsigned char)buffer[i]);
-            if ((i + 1) % 16 == 0) printf("\n");
-        }
-        printf("\n");
-        
-        if (bytes_recebidos >= 3 && memcmp(buffer, "ACK", 3) == 0) {
-            free(buffer);
-            return 1; // Resposta válida recebida
-        }
-    }
+        return NULL;
+    } else
+        return buffer;
 
-    free(buffer);
-    return 0;
+
 }
 
 int main(int argc, char *argv[]){
@@ -75,11 +63,13 @@ int main(int argc, char *argv[]){
 	else{
 
 		printf("Mensagem enviada com sucesso, aguardando resposta\n");
-        int resposta = recebeResposta(soquete);
-        printf("resposta = %d\n",resposta);
-
+        unsigned char *resposta = recebeResposta(soquete);
+        printMensagem(resposta);
     }
+    
 
+    //free(resposta);
+    free(entrada);
 	close(soquete);
     return 0;
 
