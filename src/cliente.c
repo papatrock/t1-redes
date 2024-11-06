@@ -33,7 +33,7 @@ int main(int argc, char *argv[]){
     
     inicializaSockaddr_ll(&endereco,ifindex,0);
     
-    /*char *entrada = malloc(63 * sizeof(char));
+    char *entrada = malloc(63 * sizeof(char));
     if (!entrada) {
         fprintf(stderr, "erro ao alocar memória\n");
         return -1;
@@ -44,15 +44,30 @@ int main(int argc, char *argv[]){
     // Remove o caractere de nova linha ('\n') que fgets adiciona
     entrada[strcspn(entrada, "\n")] = '\0';
 
-    /*while (strcmp(entrada, "sair") != 0) {
+    while (strcmp(entrada, "sair") != 0) {
         // Separar a entrada em dois tokens usando espaço como delimitador
         char *primeiro_token = strtok(entrada, " ");
         char *segundo_token = strtok(NULL, " ");
         
+    
+    // Switch de opções do cliente
+    if(strcmp(primeiro_token,"backup") == 0){
+            printf("Backup\n");
+        }
+    else if(strcmp(primeiro_token, "restaura") == 0){
+            printf("Restaura\n");
+
+        }
+    else if (strcmp(primeiro_token,"verifica") == 0){
+            printf("Verifica\n");
+        }
+    else{
+        printf("opção invalida, tente novamente:\n");
+        }
 
         fgets(entrada, 63, stdin);
         entrada[strcspn(entrada, "\n")] = '\0';
-    }*/
+    }
 
 	protocolo_t mensagem = criaMensagem("qualquer coisa pra ve se muda os dados ali",0);
 	printf("Mensagem->dados:%s\n",mensagem.dados);
@@ -69,7 +84,7 @@ int main(int argc, char *argv[]){
     
 
     //free(resposta);
-    //free(entrada);
+    free(entrada);
 	close(soquete);
     return 0;
 
