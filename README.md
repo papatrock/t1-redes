@@ -1,3 +1,10 @@
+# TODO
+- [x]  resposta no formato do protocolo
+- [ ]  implementar loop de resposta
+- [ ]  switch de tratamento de entradas //cliente
+- [ ]  switch de tipo no servidor
+- [ ]  criar diretório back
+
 # Descrição do trabalho
 * Implementar um servidor para backup de arquivos usando Raw Sockets
 * A implementação deve ter os seguintes comandos :
@@ -37,13 +44,6 @@ Para e espera
 | 10000 | Dados  |
 | 10001 | Fim da transmissão de dados  |
 | 11111 | Erro  |
-
-# TODO
-* resposta no formato do protocolo
-* implementar loop de resposta
-* switch de tratamento de entradas //cliente
-* switch de tipo no servidor
-* criar diretório back
 
 # Links
 
