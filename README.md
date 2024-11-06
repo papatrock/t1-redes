@@ -39,11 +39,11 @@ Para e espera
 | 11111 | Erro  |
 
 # TODO
-* resposta no formato do protocolo
-* implementar loop de resposta
-* switch de tratamento de entradas //cliente
-* switch de tipo no servidor
-* criar diretório back
+- [x]  resposta no formato do protocolo
+- [ ]  implementar loop de resposta
+- [ ]  switch de tratamento de entradas //cliente
+- [ ]  switch de tipo no servidor
+- [ ]  criar diretório back
 
 # Links
 
