@@ -12,14 +12,14 @@ unsigned char *recebeResposta(int soquete) {
     socklen_t addr_len = sizeof(addr);
          
     int bytes_recebidos = recvfrom(soquete, buffer, 68, 0, (struct sockaddr*)&addr, &addr_len);
-    
+     
     if (bytes_recebidos == -1) {
         fprintf(stderr, "Erro ao receber dados\n");
         free(buffer);
         return NULL;
-    } else
-        return buffer;
-
+    }
+    printf("Pacote recebido (%d bytes):\n", bytes_recebidos);
+    return buffer;   
 
 }
 
@@ -33,7 +33,7 @@ int main(int argc, char *argv[]){
     
     inicializaSockaddr_ll(&endereco,ifindex,0);
     
-    char *entrada = malloc(63 * sizeof(char));
+    /*char *entrada = malloc(63 * sizeof(char));
     if (!entrada) {
         fprintf(stderr, "erro ao alocar memória\n");
         return -1;
@@ -44,7 +44,7 @@ int main(int argc, char *argv[]){
     // Remove o caractere de nova linha ('\n') que fgets adiciona
     entrada[strcspn(entrada, "\n")] = '\0';
 
-    while (strcmp(entrada, "sair") != 0) {
+    /*while (strcmp(entrada, "sair") != 0) {
         // Separar a entrada em dois tokens usando espaço como delimitador
         char *primeiro_token = strtok(entrada, " ");
         char *segundo_token = strtok(NULL, " ");
@@ -52,7 +52,7 @@ int main(int argc, char *argv[]){
 
         fgets(entrada, 63, stdin);
         entrada[strcspn(entrada, "\n")] = '\0';
-    }
+    }*/
 
 	protocolo_t mensagem = criaMensagem("qualquer coisa pra ve se muda os dados ali",0);
 	printf("Mensagem->dados:%s\n",mensagem.dados);
@@ -69,7 +69,7 @@ int main(int argc, char *argv[]){
     
 
     //free(resposta);
-    free(entrada);
+    //free(entrada);
 	close(soquete);
     return 0;
 
