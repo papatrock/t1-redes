@@ -32,6 +32,6 @@ void inicializaSockaddr_ll(struct sockaddr_ll *sockaddr, int ifindex, unsigned c
 protocolo_t criaMensagem(char *dados,unsigned int tipo);
 
 
-void print_byte_as_binary(unsigned char byte);
+void print_byte_as_binary(unsigned char byte, int bits);
 
 void printMensagem(unsigned char *mensagem); 
