@@ -1,7 +1,4 @@
 #include "../include/servidor.h"
-#include <net/ethernet.h>
-#include <linux/if_packet.h>
-#include <arpa/inet.h>
 
 void enviaResposta(int soquete, struct sockaddr_ll endereco, unsigned char *src_mac) {
 
@@ -52,10 +49,22 @@ int main() {
             
             //-----BACKUP------
                 if(tipo == 4){
-                printf("ENTROU NO BACKUP\n");
-                
-                // Abre o arquivo com o nome solicitado para receber dados
-            }
+                    printf("ENTROU NO BACKUP\n");
+                    
+                    // Abre  pasta Backup e abre (ou criar) o  arquivo com o nome solicitado para receber dados
+                    printf("%s\n",getDados(buffer));
+
+                    FILE *arq = fopen ((char*)getDados(buffer),"w");
+                    if(!arq)
+                    {
+                        printf("erro ao abrir o arquivo\n");
+                        return 1;
+                    }
+                    printf("ABRIU O ARQUIVO IRRAAAAAAAAAAAAAAA\n");
+                    fclose(arq);
+                }
+
+
             printf("Pacote recebido (%d bytes):\n", bytes_recebidos);
             printMensagem(buffer); 
             extraiMacFonte(buffer, macFonte);
