@@ -37,4 +37,13 @@ void print_byte_as_binary(unsigned char byte, int bits);
 
 void printMensagem(unsigned char *mensagem); 
 
+unsigned char getMarcador(unsigned char *mensagem);
+
+unsigned char getTamanho(unsigned char *mensagem);
+
+unsigned char getSequencia(unsigned char *mensagem);
+
 unsigned char getTipo(unsigned char *mensagem);
+
+unsigned char *getDados(unsigned char *mensagem);
+

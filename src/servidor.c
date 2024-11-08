@@ -51,10 +51,11 @@ int main() {
             unsigned char tipo = getTipo(buffer);
             
             //-----BACKUP------
-            if(tipo == 0b00000100){
+                if(tipo == 4){
                 printf("ENTROU NO BACKUP\n");
+                
+                // Abre o arquivo com o nome solicitado para receber dados
             }
-            printf("buffer:\n%s\n",buffer);
             printf("Pacote recebido (%d bytes):\n", bytes_recebidos);
             printMensagem(buffer); 
             extraiMacFonte(buffer, macFonte);

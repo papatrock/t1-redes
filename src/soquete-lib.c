@@ -66,21 +66,21 @@ void print_byte_as_binary(unsigned char byte, int bits) {
 
 void printMensagem(unsigned char *mensagem) {
     printf("Marcador: ");
-    print_byte_as_binary(mensagem[0], 8);
+    print_byte_as_binary(getMarcador(mensagem), 8);
     printf("\n");
 
     printf("Tamanho: ");
-    print_byte_as_binary(mensagem[1], 6);
+    print_byte_as_binary(getTamanho(mensagem), 6);
     
     printf("\n");
 
     printf("Sequencia: ");
-    print_byte_as_binary(mensagem[2], 5);
+    print_byte_as_binary(getSequencia(mensagem), 5);
 
     printf("\n");
 
     printf("Tipo: ");
-    print_byte_as_binary(mensagem[3], 5);
+    print_byte_as_binary(getTipo(mensagem), 5);
 
     printf("\n");
 
@@ -92,7 +92,24 @@ void printMensagem(unsigned char *mensagem) {
 
 }
 
+unsigned char getMarcador(unsigned char *mensagem){
+    return mensagem[0];
+}
+
+unsigned char getTamanho(unsigned char *mensagem){
+    return mensagem[1];
+}
+
+unsigned char getSequencia(unsigned char *mensagem){
+    return mensagem[2];
+}
+
 unsigned char getTipo(unsigned char *mensagem)
 {
     return mensagem[3];
+}
+
+
+unsigned char *getDados(unsigned char *mensagem){
+    return &mensagem[4];
 }
