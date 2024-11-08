@@ -12,14 +12,15 @@
 
 #define INTERFACE "wlan0"
 #define MEU_PROTOCOLO 0x88b5
+#define PACOTE 63
 
 struct protocolo{
-    unsigned int marcador : 8;
-    unsigned int tamanho : 6;
-    unsigned int sequencia : 5;
-    unsigned int tipo : 5;
+    unsigned char marcador; //8 bits
+    unsigned char tamanho; //6 bits
+    unsigned char sequencia; //5 bits
+    unsigned char tipo; //5 bits
     unsigned char dados[63];
-    unsigned int CRC : 8;
+    unsigned char CRC; //8 bits
 };
 
 typedef struct protocolo protocolo_t;
@@ -29,9 +30,11 @@ int criaSocket(char *interface);
 void inicializaSockaddr_ll(struct sockaddr_ll *sockaddr, int ifindex, unsigned char *dest_mac);
 
 
-protocolo_t criaMensagem(char *dados,unsigned int tipo);
+protocolo_t criaMensagem(char *dados,unsigned char tipo);
 
 
 void print_byte_as_binary(unsigned char byte, int bits);
 
 void printMensagem(unsigned char *mensagem); 
+
+unsigned char getTipo(unsigned char *mensagem);

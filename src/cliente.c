@@ -53,7 +53,55 @@ int main(int argc, char *argv[]){
     // Switch de opções do cliente
     if(strcmp(primeiro_token,"backup") == 0){
             printf("Backup\n");
-        }
+            
+            protocolo_t mensagem = criaMensagem(segundo_token,4);
+            if(sendto(soquete,&mensagem,sizeof(mensagem),0,(struct sockaddr*)&endereco, sizeof(endereco)) ==-1)
+            {
+                printf("erro ao enviar mensagem\n");
+            }
+            else
+            {
+                printf("Mensagem enviada com sucesso, Mensagem:\n");
+                printf("mensagem.tipo:%d\n",mensagem.tipo);
+                unsigned char *resposta = recebeResposta(soquete);
+                printMensagem(resposta);
+            }
+
+            
+            /*            char dados[63]; 
+
+            FILE *arq = fopen (segundo_token,"r");
+            if(!arq)
+            {
+                printf("erro ao abrir o arquivo\n");
+                return 1;
+            }
+            fgets(dados,PACOTE,arq);
+
+            //SE OK COMEÇA A MANDAR O ARQUIVO
+            while(!feof(arq)){
+                             
+                protocolo_t mensagem = criaMensagem(dados,0b10000);
+                printf("Mensagem->dados:%s\n",mensagem.dados);
+                if(sendto(soquete,&mensagem,sizeof(mensagem),0,(struct sockaddr*)&endereco, sizeof(endereco)) ==-1)
+                {
+                    printf("erro ao enviar mensagem\n");
+                }
+                else{
+
+                    printf("Mensagem enviada com sucesso, aguardando resposta\n");
+                    unsigned char *resposta = recebeResposta(soquete);
+                    printMensagem(resposta);
+                }
+
+                fgets(dados,PACOTE,arq);
+            }
+
+        
+
+        fclose(arq);
+*/
+    }
     else if(strcmp(primeiro_token, "restaura") == 0){
             printf("Restaura\n");
 
@@ -69,7 +117,7 @@ int main(int argc, char *argv[]){
         entrada[strcspn(entrada, "\n")] = '\0';
     }
 
-	protocolo_t mensagem = criaMensagem("qualquer coisa pra ve se muda os dados ali",0);
+	/*protocolo_t mensagem = criaMensagem("qualquer coisa pra ve se muda os dados ali",0);
 	printf("Mensagem->dados:%s\n",mensagem.dados);
     if(sendto(soquete,&mensagem,sizeof(mensagem),0,(struct sockaddr*)&endereco, sizeof(endereco)) ==-1)
 	{
@@ -81,9 +129,8 @@ int main(int argc, char *argv[]){
         unsigned char *resposta = recebeResposta(soquete);
         printMensagem(resposta);
     }
-    
+    */
 
-    //free(resposta);
     free(entrada);
 	close(soquete);
     return 0;

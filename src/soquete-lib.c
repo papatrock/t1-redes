@@ -45,16 +45,15 @@ void inicializaSockaddr_ll(struct sockaddr_ll *sockaddr, int ifindex, unsigned c
     }
 }
 
-protocolo_t criaMensagem(char *dados, unsigned int tipo) {
+protocolo_t criaMensagem(char *dados, unsigned char tipo) {
     protocolo_t mensagem; 
-
-
-    mensagem.marcador = 0b01111110;
-    mensagem.tamanho = 0b000000;
-    mensagem.sequencia = 0b00000;
-    mensagem.tipo = tipo;
+    
+    mensagem.marcador = 126;
+    mensagem.tamanho = 0 & 0b00111111;
+    mensagem.sequencia = 0 & 0b00011111;
+    mensagem.tipo = tipo & 0b00011111;
     strncpy((char *)mensagem.dados, dados, sizeof(mensagem.dados) - 1);
-    mensagem.CRC = 0b00000000;
+    mensagem.CRC = 0;
 
     return mensagem;
 }
@@ -71,19 +70,18 @@ void printMensagem(unsigned char *mensagem) {
     printf("\n");
 
     printf("Tamanho: ");
-    for (int i = 7; i >= 2; i--) {
-        printf("%d", (mensagem[1] >> i) & 1);
-    }
+    print_byte_as_binary(mensagem[1], 6);
+    
     printf("\n");
 
-    printf("Sequência: ");
-    for (int i = 7; i >= 3; i--) {
-        printf("%d", (mensagem[2] >> i) & 1);
-    }
+    printf("Sequencia: ");
+    print_byte_as_binary(mensagem[2], 5);
+
     printf("\n");
 
     printf("Tipo: ");
-    print_byte_as_binary(mensagem[2] & 0x1F, 5);
+    print_byte_as_binary(mensagem[3], 5);
+
     printf("\n");
 
     printf("Dados (ASCII): ");
@@ -92,7 +90,9 @@ void printMensagem(unsigned char *mensagem) {
     }
     printf("\n");
 
-    printf("CRC: ");
-    print_byte_as_binary(mensagem[66], 8);
-    printf("\n");
+}
+
+unsigned char getTipo(unsigned char *mensagem)
+{
+    return mensagem[3];
 }

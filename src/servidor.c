@@ -5,7 +5,6 @@
 
 void enviaResposta(int soquete, struct sockaddr_ll endereco, unsigned char *src_mac) {
 
-
 	protocolo_t resposta = criaMensagem("ACK",0b00000);
 
     if (sendto(soquete, &resposta, sizeof(resposta), 0, (struct sockaddr*)&endereco, sizeof(endereco)) == -1) {
@@ -48,11 +47,25 @@ int main() {
         } else {
             if (bytes_recebidos > 0 && buffer[0] != 0b01111110)
                 continue;
-
+            //verifica tipo
+            unsigned char tipo = getTipo(buffer);
+            
+            //-----BACKUP------
+            if(tipo == 0b00000100){
+                printf("ENTROU NO BACKUP\n");
+            }
+            printf("buffer:\n%s\n",buffer);
             printf("Pacote recebido (%d bytes):\n", bytes_recebidos);
             printMensagem(buffer); 
             extraiMacFonte(buffer, macFonte);
             
+
+    for (int i = 0; i < 63; i++) {
+        printf("%02X ", buffer[i]);
+    }
+    printf("\n");
+
+
             printf("MAC de origem: %02x:%02x:%02x:%02x:%02x:%02x\n", 
                    macFonte[0], macFonte[1], macFonte[2], macFonte[3], macFonte[4], macFonte[5]);
 
