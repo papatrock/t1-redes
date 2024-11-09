@@ -1,9 +1,11 @@
 # TODO
 - [x]  resposta no formato do protocolo
-- [ ]  implementar loop de resposta
+- [x]  implementar loop de resposta
 - [ ]  switch de tratamento de entradas //cliente
 - [ ]  switch de tipo no servidor
-- [ ]  criar diretório back
+- [x]  criar diretório back
+- [ ]  Verificar porq final do arquivo está diferente após envio
+- [ ]  Implementar a verificação de tamanho
 
 # Descrição do trabalho
 * Implementar um servidor para backup de arquivos usando Raw Sockets
