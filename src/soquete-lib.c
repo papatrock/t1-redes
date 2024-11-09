@@ -45,15 +45,25 @@ void inicializaSockaddr_ll(struct sockaddr_ll *sockaddr, int ifindex, unsigned c
     }
 }
 
-protocolo_t criaMensagem(char *dados, unsigned char tipo) {
+/**
+ * Cria uma mensagem do tipo protocolo_t e a inicializa com os parametros
+ *
+ * @param tamanho 
+ * @param sequencia
+ * @param tipo
+ * @param dados
+ * @param CRC 
+ * @return Mensagem inicializada
+ */
+protocolo_t criaMensagem(unsigned char tamanho,unsigned char sequencia,unsigned char tipo,char *dados,unsigned char CRC) {
     protocolo_t mensagem; 
     
     mensagem.marcador = 126;
-    mensagem.tamanho = 0 & 0b00111111;
-    mensagem.sequencia = 0 & 0b00011111;
-    mensagem.tipo = tipo & 0b00011111;
+    mensagem.tamanho = 0 & tamanho;
+    mensagem.sequencia = 0 & sequencia;
+    mensagem.tipo = tipo & tipo;
     strncpy((char *)mensagem.dados, dados, sizeof(mensagem.dados) - 1);
-    mensagem.CRC = 0;
+    mensagem.CRC = CRC;
 
     return mensagem;
 }

@@ -1,13 +1,19 @@
 #include "../include/servidor.h"
 
-void enviaResposta(int soquete, struct sockaddr_ll endereco, unsigned char *src_mac) {
-
-	protocolo_t resposta = criaMensagem("ACK",0b00000);
+/**
+ * Envia uma mensagem para o mac fonte
+ *
+ * @param soquete 
+ * @param endereco
+ * @param resposta
+ * @return 1 se sucesso, 0 se fracasso
+ */
+int enviaResposta(int soquete, struct sockaddr_ll endereco, protocolo_t resposta) {
 
     if (sendto(soquete, &resposta, sizeof(resposta), 0, (struct sockaddr*)&endereco, sizeof(endereco)) == -1) {
-        perror("Erro ao enviar resposta");
+        return 0;
     } else {
-        printf("Resposta enviada com sucesso\n");
+        return 1;
     }
 }
 
@@ -21,7 +27,7 @@ void extraiMacFonte(unsigned char *packet, unsigned char *src_mac) {
 
 int main() {
     unsigned char macFonte[6];
-    struct sockaddr_ll dest_addr;
+    struct sockaddr_ll path_addr;
     int ifindex = if_nametoindex(INTERFACE);
     
     int soquete = criaSocket(INTERFACE);
@@ -44,6 +50,20 @@ int main() {
         } else {
             if (bytes_recebidos > 0 && buffer[0] != 0b01111110)
                 continue;
+
+            //Mensagem recebida:
+            for (int i = 0; i < 63; i++) {
+                printf("%02X ", buffer[i]);
+            }
+            printf("\n");
+            printMensagem(buffer);
+
+            //Coleta endereço do cliente
+            extraiMacFonte(buffer, macFonte);
+            inicializaSockaddr_ll(&path_addr, ifindex, macFonte);
+            printf("MAC de origem: %02x:%02x:%02x:%02x:%02x:%02x\n", 
+                   macFonte[0], macFonte[1], macFonte[2], macFonte[3], macFonte[4], macFonte[5]);
+
             //verifica tipo
             unsigned char tipo = getTipo(buffer);
             
@@ -52,35 +72,29 @@ int main() {
                     printf("ENTROU NO BACKUP\n");
                     
                     // Abre  pasta Backup e abre (ou criar) o  arquivo com o nome solicitado para receber dados
-                    printf("%s\n",getDados(buffer));
+                    char path[100]; 
+                    strcpy(path, "Backup/"); 
+                    strcat(path, (char*)getDados(buffer)); 
 
-                    FILE *arq = fopen ((char*)getDados(buffer),"w");
+                    FILE *arq = fopen (path,"r");
                     if(!arq)
                     {
-                        printf("erro ao abrir o arquivo\n");
-                        return 1;
+                        printf("erro ao abrir o arquivo, enviando nack\n");
+                        //Manda um nack
+                        protocolo_t resposta = criaMensagem(0,0,1,"Erro ao abrir arquivo",0);
+                        if(!enviaResposta(soquete,path_addr,resposta))
+                            printf("Erro ao enviar resposta\n");
+                        else
+                            printf("Resposta enviada com sucesso\n");
                     }
-                    printf("ABRIU O ARQUIVO IRRAAAAAAAAAAAAAAA\n");
-                    fclose(arq);
+                    else{
+                        printf("ABRIU O ARQUIVO IRRAAAAAAAAAAAAAAA\n");
+                        fclose(arq);
+                    }
                 }
 
-
-            printf("Pacote recebido (%d bytes):\n", bytes_recebidos);
-            printMensagem(buffer); 
-            extraiMacFonte(buffer, macFonte);
-            
-
-    for (int i = 0; i < 63; i++) {
-        printf("%02X ", buffer[i]);
-    }
-    printf("\n");
-
-
-            printf("MAC de origem: %02x:%02x:%02x:%02x:%02x:%02x\n", 
-                   macFonte[0], macFonte[1], macFonte[2], macFonte[3], macFonte[4], macFonte[5]);
-
-            inicializaSockaddr_ll(&dest_addr, ifindex, macFonte);
-            enviaResposta(soquete, dest_addr, macFonte);
+            //protocolo_t resposta = criaMensagem(0,0,0,"Reposta teste",0);
+            //enviaResposta(soquete, path_addr, resposta);
         }
     }
 

@@ -1,8 +1,7 @@
 #include "../include/soquete-lib.h"
 
 
-void enviaResposta(int soquete, struct sockaddr_ll endereco, unsigned char *src_mac);
-
+int enviaResposta(int soquete, struct sockaddr_ll endereco, protocolo_t resposta);
 
 void extraiMacFonte(unsigned char *packet, unsigned char *src_mac);
 

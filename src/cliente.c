@@ -1,12 +1,7 @@
 #include "../include/cliente.h"
 
 
-unsigned char *recebeResposta(int soquete) {
-    unsigned char *buffer = (unsigned char *)malloc(68 * sizeof(unsigned char));
-    if (!buffer) {
-        printf("erro ao alocar buffer\n");
-        return NULL;
-    }
+int recebeResposta(int soquete,unsigned char *buffer) {
 
     struct sockaddr_ll addr;
     socklen_t addr_len = sizeof(addr);
@@ -16,20 +11,27 @@ unsigned char *recebeResposta(int soquete) {
     if (bytes_recebidos == -1) {
         fprintf(stderr, "Erro ao receber dados\n");
         free(buffer);
-        return NULL;
+        return 0;
     }
-    printf("Pacote recebido (%d bytes):\n", bytes_recebidos);
-    return buffer;   
+    if(buffer[0] != 0b01111110)
+        return 0;
+
+    printf("Resposta recebida (%d bytes):\n", bytes_recebidos);
+    return 1;   
 
 }
 
 int main(int argc, char *argv[]){
 
-
     int soquete = criaSocket(INTERFACE); 
-    
     int ifindex = if_nametoindex(INTERFACE);
     struct sockaddr_ll endereco;
+
+    unsigned char *bufferResposta = (unsigned char *)malloc(68 * sizeof(unsigned char));
+    if (!bufferResposta) {
+        printf("erro ao alocar buffer\n");
+        return -1;
+    }
     
     inicializaSockaddr_ll(&endereco,ifindex,0);
     
@@ -50,88 +52,45 @@ int main(int argc, char *argv[]){
         char *segundo_token = strtok(NULL, " ");
         
     
-    // Switch de opções do cliente
-    if(strcmp(primeiro_token,"backup") == 0){
-            printf("Backup\n");
-            
-            protocolo_t mensagem = criaMensagem(segundo_token,4);
-            if(sendto(soquete,&mensagem,sizeof(mensagem),0,(struct sockaddr*)&endereco, sizeof(endereco)) ==-1)
-            {
-                printf("erro ao enviar mensagem\n");
-            }
-            else
-            {
-                printf("Mensagem enviada com sucesso, Mensagem:\n");
-                printf("mensagem.tipo:%d\n",mensagem.tipo);
-                unsigned char *resposta = recebeResposta(soquete);
-                printMensagem(resposta);
-            }
-
-            
-            /*            char dados[63]; 
-
-            FILE *arq = fopen (segundo_token,"r");
-            if(!arq)
-            {
-                printf("erro ao abrir o arquivo\n");
-                return 1;
-            }
-            fgets(dados,PACOTE,arq);
-
-            //SE OK COMEÇA A MANDAR O ARQUIVO
-            while(!feof(arq)){
-                             
-                protocolo_t mensagem = criaMensagem(dados,0b10000);
-                printf("Mensagem->dados:%s\n",mensagem.dados);
+        // Switch de opções do cliente
+        if(strcmp(primeiro_token,"backup") == 0){
+                printf("Backup\n");
+                
+                //TODO setar tamanho correto
+                protocolo_t mensagem = criaMensagem(0,0,4,segundo_token,0);
                 if(sendto(soquete,&mensagem,sizeof(mensagem),0,(struct sockaddr*)&endereco, sizeof(endereco)) ==-1)
                 {
                     printf("erro ao enviar mensagem\n");
                 }
-                else{
+                else
+                {
 
-                    printf("Mensagem enviada com sucesso, aguardando resposta\n");
-                    unsigned char *resposta = recebeResposta(soquete);
-                    printMensagem(resposta);
+                    printf("Mensagem enviada com sucesso, Aguardando resposta:\n");
+                    //TODO implementar timout (não lembro se precisava do lado do cliente ou não)
+                    while (!recebeResposta(soquete,bufferResposta)){}
+                    
+                    printf("Resposta recebida:\n");
+                    printMensagem(bufferResposta);
                 }
 
-                fgets(dados,PACOTE,arq);
+        }
+        else if(strcmp(primeiro_token, "restaura") == 0){
+                printf("Restaura\n");
+
+            }
+        else if (strcmp(primeiro_token,"verifica") == 0){
+                printf("Verifica\n");
+            }
+        else{
+            printf("opção invalida, tente novamente:\n");
             }
 
-        
-
-        fclose(arq);
-*/
+            fgets(entrada, 63, stdin);
+            entrada[strcspn(entrada, "\n")] = '\0';
     }
-    else if(strcmp(primeiro_token, "restaura") == 0){
-            printf("Restaura\n");
-
-        }
-    else if (strcmp(primeiro_token,"verifica") == 0){
-            printf("Verifica\n");
-        }
-    else{
-        printf("opção invalida, tente novamente:\n");
-        }
-
-        fgets(entrada, 63, stdin);
-        entrada[strcspn(entrada, "\n")] = '\0';
-    }
-
-	/*protocolo_t mensagem = criaMensagem("qualquer coisa pra ve se muda os dados ali",0);
-	printf("Mensagem->dados:%s\n",mensagem.dados);
-    if(sendto(soquete,&mensagem,sizeof(mensagem),0,(struct sockaddr*)&endereco, sizeof(endereco)) ==-1)
-	{
-		printf("erro ao enviar mensagem\n");
-	}
-	else{
-
-		printf("Mensagem enviada com sucesso, aguardando resposta\n");
-        unsigned char *resposta = recebeResposta(soquete);
-        printMensagem(resposta);
-    }
-    */
 
     free(entrada);
+    free(bufferResposta);
 	close(soquete);
     return 0;
 
