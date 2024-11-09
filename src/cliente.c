@@ -1,26 +1,6 @@
 #include "../include/cliente.h"
 
 
-int recebeResposta(int soquete,unsigned char *buffer) {
-
-    struct sockaddr_ll addr;
-    socklen_t addr_len = sizeof(addr);
-         
-    int bytes_recebidos = recvfrom(soquete, buffer, 68, 0, (struct sockaddr*)&addr, &addr_len);
-     
-    if (bytes_recebidos == -1) {
-        fprintf(stderr, "Erro ao receber dados\n");
-        free(buffer);
-        return 0;
-    }
-    if(buffer[0] != 0b01111110)
-        return 0;
-
-    printf("Resposta recebida (%d bytes):\n", bytes_recebidos);
-    return 1;   
-
-}
-
 int main(int argc, char *argv[]){
 
     int soquete = criaSocket(INTERFACE); 
@@ -71,6 +51,50 @@ int main(int argc, char *argv[]){
                     
                     printf("Resposta recebida:\n");
                     printMensagem(bufferResposta);
+                    //TODO tratar resposta
+                    switch (getTipo(bufferResposta))
+                    {
+                    //Recebeu um OK, manda dados
+                    case 2:
+                        printf("Recebeu um ok\n");
+                        char path[100]; 
+                        strcpy(path, "Cliente/"); 
+                        strcat(path, segundo_token);
+                        FILE *arq = fopen (path,"r");
+                        if(!arq)
+                        {
+                            printf("erro ao abrir o arquivo, enviando fim do envio de dados\n");
+                            mensagem = criaMensagem(0,0,17,"Erro ao abrir arquivo\n",0);
+                            if(sendto(soquete,&mensagem,sizeof(mensagem),0,(struct sockaddr*)&endereco, sizeof(endereco)) ==-1)
+                                printf("Erro ao enviar resposta\n");
+                            else
+                                printf("Resposta enviada com sucesso\n");
+                        }
+                        else
+                        {
+                            printf("Abriu o arquivo\n");
+                            mensagem = criaMensagem(0,0,16,"",0);
+                            char buffer[63];
+                            size_t bytesLidos;
+                            //TODO implementar sequencia neste loop
+                            while ((bytesLidos = fread(buffer, 1, sizeof(buffer), arq)) > 0)
+                            {
+                                printf("Mandando pacote:\n");
+                                memcpy(mensagem.dados, buffer, bytesLidos);
+                                sendto(soquete,&mensagem,sizeof(mensagem),0,(struct sockaddr*)&endereco, sizeof(endereco));
+
+                            }
+                            mensagem = criaMensagem(0,0,17,"Fim da transmissão de dados",0);
+                        }
+
+
+
+                        break;
+                    
+                    default:
+                        break;
+                    }
+                
                 }
 
         }

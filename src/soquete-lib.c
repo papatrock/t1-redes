@@ -68,6 +68,25 @@ protocolo_t criaMensagem(unsigned char tamanho,unsigned char sequencia,unsigned 
     return mensagem;
 }
 
+
+int recebeResposta(int soquete,unsigned char *buffer) {
+
+    struct sockaddr_ll addr;
+    socklen_t addr_len = sizeof(addr);
+         
+    int bytes_recebidos = recvfrom(soquete, buffer, 68, 0, (struct sockaddr*)&addr, &addr_len);
+     
+    if (bytes_recebidos == -1) {
+        fprintf(stderr, "Erro ao receber dados\n");
+        free(buffer);
+        return 0;
+    }
+    if(buffer[0] != 0b01111110)
+        return 0;
+
+    return 1;   
+
+}
 void print_byte_as_binary(unsigned char byte, int bits) {
     for (int i = bits - 1; i >= 0; i--) {
         printf("%d", (byte >> i) & 1);

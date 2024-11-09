@@ -41,7 +41,7 @@ int main() {
         unsigned char buffer[68];
         struct sockaddr_ll addr;
         socklen_t addr_len = sizeof(addr);
-         
+        protocolo_t resposta;
         int bytes_recebidos = recvfrom(soquete, buffer, sizeof(buffer), 0, (struct sockaddr*)&addr, &addr_len);
         
         if (bytes_recebidos == -1) {
@@ -76,19 +76,39 @@ int main() {
                     strcpy(path, "Backup/"); 
                     strcat(path, (char*)getDados(buffer)); 
 
-                    FILE *arq = fopen (path,"r");
+                    FILE *arq = fopen (path,"a+");
                     if(!arq)
                     {
                         printf("erro ao abrir o arquivo, enviando nack\n");
                         //Manda um nack
-                        protocolo_t resposta = criaMensagem(0,0,1,"Erro ao abrir arquivo",0);
+                        resposta = criaMensagem(0,0,1,"Erro ao abrir arquivo",0);
                         if(!enviaResposta(soquete,path_addr,resposta))
                             printf("Erro ao enviar resposta\n");
                         else
-                            printf("Resposta enviada com sucesso\n");
+                            printf("Resposta enviada com sucesso\n");                          
                     }
                     else{
                         printf("ABRIU O ARQUIVO IRRAAAAAAAAAAAAAAA\n");
+                        //Manda um ok e recebe os dados
+                        resposta = criaMensagem(0,0,2,"Ok!",0);
+                        if(!enviaResposta(soquete,path_addr,resposta))
+                            printf("Erro ao enviar resposta\n");
+                        else
+                            printf("Resposta enviada com sucesso, aguardando dados\n");
+                        
+                        //TODO tratar erros aqui
+                        while (getTipo(buffer) != 17){
+                            recebeResposta(soquete,buffer);
+                            //dados
+                            if(getTipo(buffer) == 16){
+                                printf("Recebeu um pacote de dados:\n");
+                                printMensagem(buffer);
+                                fprintf(arq,"%s",(char*)getDados(buffer));
+                                fflush(arq);
+                            }
+                                
+                        }
+                        printf("Terminou de receber dados\n");
                         fclose(arq);
                     }
                 }
