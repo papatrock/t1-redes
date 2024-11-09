@@ -76,7 +76,7 @@ int main() {
                     strcpy(path, "Backup/"); 
                     strcat(path, (char*)getDados(buffer)); 
 
-                    FILE *arq = fopen (path,"a+");
+                    FILE *arq = fopen (path,"ab+");
                     if(!arq)
                     {
                         printf("erro ao abrir o arquivo, enviando nack\n");
@@ -103,7 +103,8 @@ int main() {
                             if(getTipo(buffer) == 16){
                                 printf("Recebeu um pacote de dados:\n");
                                 printMensagem(buffer);
-                                fprintf(arq,"%s",(char*)getDados(buffer));
+                                char *dados = (char*)getDados(buffer);
+                                fwrite(dados,strlen(dados),1,arq);
                                 fflush(arq);
                             }
                                 
