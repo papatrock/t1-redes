@@ -56,7 +56,11 @@ int main(int argc, char *argv[]){
                     {
                     //Recebeu um OK, manda dados
                     case 2:
+                        #ifdef _DEBUG_
                         printf("Recebeu um ok\n");
+
+                        #endif
+
                         char path[100]; 
                         strcpy(path, "Cliente/"); 
                         strcat(path, segundo_token);
@@ -79,7 +83,11 @@ int main(int argc, char *argv[]){
                             //TODO implementar sequencia neste loop
                             while ((bytesLidos = fread(buffer, 1, sizeof(buffer), arq)) > 0)
                             {
+                                #ifdef _DEBUG_
+
                                 printf("Mandando pacote:\n");
+
+                                #endif
                                 memcpy(mensagem.dados, buffer, bytesLidos);
                                 sendto(soquete,&mensagem,sizeof(mensagem),0,(struct sockaddr*)&endereco, sizeof(endereco));
 

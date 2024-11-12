@@ -4,6 +4,9 @@ servidorObjs = servidor.o soquete-lib.o
 
 all: servidor cliente
 
+debug: CFLAGS += -D_DEBUG_ -g
+debug: all
+
 servidor: $(servidorObjs)
 	gcc $(servidorObjs) $(CFLAGS) -o servidor
 

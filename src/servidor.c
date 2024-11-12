@@ -43,7 +43,8 @@ int main() {
         socklen_t addr_len = sizeof(addr);
         protocolo_t resposta;
         int bytes_recebidos = recvfrom(soquete, buffer, sizeof(buffer), 0, (struct sockaddr*)&addr, &addr_len);
-        
+
+
         if (bytes_recebidos == -1) {
             perror("Erro ao receber dados");
             continue;
@@ -61,15 +62,20 @@ int main() {
             //Coleta endereço do cliente
             extraiMacFonte(buffer, macFonte);
             inicializaSockaddr_ll(&path_addr, ifindex, macFonte);
+            #ifdef _DEBUG_
+            
             printf("MAC de origem: %02x:%02x:%02x:%02x:%02x:%02x\n", 
                    macFonte[0], macFonte[1], macFonte[2], macFonte[3], macFonte[4], macFonte[5]);
-
+            #endif /* ifdef _DEBUG_ */
             //verifica tipo
             unsigned char tipo = getTipo(buffer);
             
             //-----BACKUP------
                 if(tipo == 4){
+                    #ifdef _DEBUG_ 
                     printf("ENTROU NO BACKUP\n");
+                   
+                    #endif
                     
                     // Abre  pasta Backup e abre (ou criar) o  arquivo com o nome solicitado para receber dados
                     char path[100]; 
