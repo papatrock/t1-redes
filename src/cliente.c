@@ -1,6 +1,10 @@
 #include "../include/cliente.h"
 
 
+void menu(){
+    printf("opções disponiveis:\nbackup <nome do arquivo>\nrestaura <nome do arquivo>\nverifica <nome do arquivo>\nsair\n");
+}
+
 int main(int argc, char *argv[]){
 
     int soquete = criaSocket(INTERFACE); 
@@ -20,6 +24,7 @@ int main(int argc, char *argv[]){
         fprintf(stderr, "erro ao alocar memória\n");
         return -1;
     }
+    menu();
         
     fgets(entrada, 63, stdin);
 
@@ -45,12 +50,18 @@ int main(int argc, char *argv[]){
                 else
                 {
 
+                    #ifdef _DEBUG_
+                    
                     printf("Mensagem enviada com sucesso, Aguardando resposta:\n");
+
+                    #endif
                     //TODO implementar timout (não lembro se precisava do lado do cliente ou não)
                     while (!recebeResposta(soquete,bufferResposta)){}
                     
+                    #ifdef _DEBUG_
                     printf("Resposta recebida:\n");
                     printMensagem(bufferResposta);
+                    #endif
                     //TODO tratar resposta
                     switch (getTipo(bufferResposta))
                     {
@@ -76,7 +87,7 @@ int main(int argc, char *argv[]){
                         }
                         else
                         {
-                            printf("Abriu o arquivo\n");
+                            
                             mensagem = criaMensagem(0,0,16,"",0);
                             char buffer[63];
                             size_t bytesLidos;
@@ -86,13 +97,17 @@ int main(int argc, char *argv[]){
                                 #ifdef _DEBUG_
 
                                 printf("Mandando pacote:\n");
-
-                                #endif
                                 memcpy(mensagem.dados, buffer, bytesLidos);
+                                printMensagemEstruturada(mensagem);
+                                #endif
+                                
                                 sendto(soquete,&mensagem,sizeof(mensagem),0,(struct sockaddr*)&endereco, sizeof(endereco));
 
                             }
                             mensagem = criaMensagem(0,0,17,"Fim da transmissão de dados",0);
+                            printf("\nBackup feito com sucesso\n\n");
+                            menu();
+                            
                         }
 
 

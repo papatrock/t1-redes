@@ -121,6 +121,26 @@ void printMensagem(unsigned char *mensagem) {
 
 }
 
+void printMensagemEstruturada(protocolo_t mensagem) {
+    printf("Marcador: %d",mensagem.marcador);
+    printf("\n");
+
+    printf("Tamanho: %d",mensagem.tamanho);
+    
+    printf("\n");
+
+    printf("Sequencia: %d",mensagem.sequencia);
+
+    printf("\n");
+
+    printf("Tipo: %d",mensagem.tipo);
+
+    printf("\n");
+
+    printf("Dados (ASCII): %s",(char*)mensagem.dados);
+    printf("\n");
+
+}
 unsigned char getMarcador(unsigned char *mensagem){
     return mensagem[0];
 }

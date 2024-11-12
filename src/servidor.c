@@ -94,7 +94,9 @@ int main() {
                             printf("Resposta enviada com sucesso\n");                          
                     }
                     else{
-                        printf("ABRIU O ARQUIVO IRRAAAAAAAAAAAAAAA\n");
+                        #ifdef _DEBUG_
+                        printf("Abriu arquivo\n"); 
+                        #endif /* ifdef  */
                         //Manda um ok e recebe os dados
                         resposta = criaMensagem(0,0,2,"Ok!",0);
                         if(!enviaResposta(soquete,path_addr,resposta))
@@ -107,8 +109,10 @@ int main() {
                             recebeResposta(soquete,buffer);
                             //dados
                             if(getTipo(buffer) == 16){
+                                #ifdef _DEBUG_ 
                                 printf("Recebeu um pacote de dados:\n");
                                 printMensagem(buffer);
+                                #endif
                                 char *dados = (char*)getDados(buffer);
                                 fwrite(dados,strlen(dados),1,arq);
                                 fflush(arq);

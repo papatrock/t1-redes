@@ -17,7 +17,7 @@
 
 
 
-#define INTERFACE "enp2s0"
+#define INTERFACE "wlan0"
 #define PACOTE 63
 
 struct protocolo{
@@ -42,7 +42,9 @@ int recebeResposta(int soquete,unsigned char *buffer);
 
 void print_byte_as_binary(unsigned char byte, int bits);
 
-void printMensagem(unsigned char *mensagem); 
+void printMensagem(unsigned char *mensagem);
+
+void printMensagemEstruturada(protocolo_t mensagem);
 
 unsigned char getMarcador(unsigned char *mensagem);
 
