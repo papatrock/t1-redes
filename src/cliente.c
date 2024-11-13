@@ -2,7 +2,7 @@
 
 
 void menu(){
-    printf("opções disponiveis:\nbackup <nome do arquivo>\nrestaura <nome do arquivo>\nverifica <nome do arquivo>\nsair\n");
+    printf("\n---------------------\nopções disponiveis:\nbackup <nome do arquivo>\nrestaura <nome do arquivo>\nverifica <nome do arquivo>\nsair\n-----------------\n");
 }
 
 int main(int argc, char *argv[]){
@@ -32,8 +32,12 @@ int main(int argc, char *argv[]){
     entrada[strcspn(entrada, "\n")] = '\0';
 
     while (strcmp(entrada, "sair") != 0) {
+        
         // Separar a entrada em dois tokens usando espaço como delimitador
-        char *primeiro_token = strtok(entrada, " ");
+        char entrada_copy[100];
+        strcpy(entrada_copy,entrada);
+
+        char *primeiro_token = strtok(entrada_copy, " ");
         char *segundo_token = strtok(NULL, " ");
         
     
@@ -41,53 +45,48 @@ int main(int argc, char *argv[]){
         if(strcmp(primeiro_token,"backup") == 0){
                 printf("Backup\n");
                 
-                //TODO setar tamanho correto
-                protocolo_t mensagem = criaMensagem(0,0,4,segundo_token,0);
-                if(sendto(soquete,&mensagem,sizeof(mensagem),0,(struct sockaddr*)&endereco, sizeof(endereco)) ==-1)
-                {
-                    printf("erro ao enviar mensagem\n");
-                }
-                else
-                {
-
-                    #ifdef _DEBUG_
-                    
-                    printf("Mensagem enviada com sucesso, Aguardando resposta:\n");
-
-                    #endif
-                    //TODO implementar timout (não lembro se precisava do lado do cliente ou não)
-                    while (!recebeResposta(soquete,bufferResposta)){}
-                    
-                    #ifdef _DEBUG_
-                    printf("Resposta recebida:\n");
-                    printMensagem(bufferResposta);
-                    #endif
-                    //TODO tratar resposta
-                    switch (getTipo(bufferResposta))
+                char path[100]; 
+                strcpy(path, "Cliente/"); 
+                strcat(path, segundo_token);
+                FILE *arq = fopen (path,"r");
+                if(!arq)
+                    printf("Erro ao abrir arquivo, verifique se o arquivo existe\n");
+                else{   
+                    fseek(arq,0L,SEEK_END); // ponteiro para o final do arquivo
+                    int tamanho = ftell(arq);
+                    printf("TAMANHO:%d\n",tamanho);
+                    fseek(arq, 0L, SEEK_SET); // volta com o ponteiro pro inicio do arquivo
+                    //TODO setar tamanho correto
+                    // manda msg com o nome do arquivo e tamanho
+                    protocolo_t mensagem = criaMensagem(0,0,4,segundo_token,0);
+                    if(sendto(soquete,&mensagem,sizeof(mensagem),0,(struct sockaddr*)&endereco, sizeof(endereco)) ==-1)
                     {
-                    //Recebeu um OK, manda dados
-                    case 2:
+                        printf("erro ao enviar mensagem\n");
+                    }
+                    else
+                    {
+
                         #ifdef _DEBUG_
-                        printf("Recebeu um ok\n");
+                        
+                        printf("Mensagem enviada com sucesso, Aguardando resposta:\n");
 
                         #endif
+                        //TODO implementar timout (não lembro se precisava do lado do cliente ou não)
+                        while (!recebeResposta(soquete,bufferResposta)){}
+                        
+                        #ifdef _DEBUG_
+                        printf("Resposta recebida:\n");
+                        printMensagem(bufferResposta);
+                        #endif
+                        //TODO tratar resposta
+                        switch (getTipo(bufferResposta))
+                        {
+                        //Recebeu um OK, manda dados
+                        case 2:
+                            #ifdef _DEBUG_
+                            printf("Recebeu um ok\n");
 
-                        char path[100]; 
-                        strcpy(path, "Cliente/"); 
-                        strcat(path, segundo_token);
-                        FILE *arq = fopen (path,"r");
-                        if(!arq)
-                        {
-                            printf("erro ao abrir o arquivo, enviando fim do envio de dados\n");
-                            mensagem = criaMensagem(0,0,17,"Erro ao abrir arquivo\n",0);
-                            if(sendto(soquete,&mensagem,sizeof(mensagem),0,(struct sockaddr*)&endereco, sizeof(endereco)) ==-1)
-                                printf("Erro ao enviar resposta\n");
-                            else
-                                printf("Resposta enviada com sucesso\n");
-                        }
-                        else
-                        {
-                            
+                            #endif
                             mensagem = criaMensagem(0,0,16,"",0);
                             char buffer[63];
                             size_t bytesLidos;
@@ -108,16 +107,16 @@ int main(int argc, char *argv[]){
                             printf("\nBackup feito com sucesso\n\n");
                             menu();
                             
+
+
+
+                        break;
+                        
+                        default:
+                            break;
                         }
-
-
-
-                        break;
                     
-                    default:
-                        break;
                     }
-                
                 }
 
         }
@@ -131,7 +130,7 @@ int main(int argc, char *argv[]){
         else{
             printf("opção invalida, tente novamente:\n");
             }
-
+            menu();
             fgets(entrada, 63, stdin);
             entrada[strcspn(entrada, "\n")] = '\0';
     }

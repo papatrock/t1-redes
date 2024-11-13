@@ -51,13 +51,11 @@ int main() {
         } else {
             if (bytes_recebidos > 0 && buffer[0] != 0b01111110)
                 continue;
-
-            //Mensagem recebida:
-            for (int i = 0; i < 63; i++) {
-                printf("%02X ", buffer[i]);
-            }
-            printf("\n");
+            
+            #ifdef _DEBUG_
+            printf("Recebeu uma mensagem:\n");
             printMensagem(buffer);
+            #endif
 
             //Coleta endereço do cliente
             extraiMacFonte(buffer, macFonte);

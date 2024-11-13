@@ -59,9 +59,9 @@ protocolo_t criaMensagem(unsigned char tamanho,unsigned char sequencia,unsigned 
     protocolo_t mensagem; 
     
     mensagem.marcador = 126;
-    mensagem.tamanho = 0 & tamanho;
-    mensagem.sequencia = 0 & sequencia;
-    mensagem.tipo = tipo & tipo;
+    mensagem.tamanho = 0b00111111 & tamanho;
+    mensagem.sequencia = 0b00011111 & sequencia;
+    mensagem.tipo = 0b00011111 & tipo;
     strncpy((char *)mensagem.dados, dados, sizeof(mensagem.dados) - 1);
     mensagem.CRC = CRC;
 
