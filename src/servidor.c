@@ -80,7 +80,7 @@ int main() {
                     strcpy(path, "Backup/"); 
                     strcat(path, (char*)getDados(buffer)); 
 
-                    FILE *arq = fopen (path,"ab+");
+                    FILE *arq = fopen (path,"wb+");
                     if(!arq)
                     {
                         printf("erro ao abrir o arquivo, enviando nack\n");
@@ -95,14 +95,29 @@ int main() {
                         #ifdef _DEBUG_
                         printf("Abriu arquivo\n"); 
                         #endif /* ifdef  */
-                        //Manda um ok e recebe os dados
+                        //Manda um ok e aguarda o tamanho
                         resposta = criaMensagem(0,0,2,"Ok!",0);
                         if(!enviaResposta(soquete,path_addr,resposta))
-                            printf("Erro ao enviar resposta\n");
+                                printf("Erro ao enviar resposta\n");
+                        else
+                            printf("Resposta enviada com sucesso, aguardando tamanho\n");
+
+                        recebeResposta(soquete,buffer);
+                        //TODO verificar se cabe em disco
+                        printf("recebeu dados:\n");
+                        printMensagem(buffer);
+                        // SE COUBER:
+                        
+                        resposta = criaMensagem(0,0,2,"Ok!",0);
+                        
+                        if(!enviaResposta(soquete,path_addr,resposta))
+                                printf("Erro ao enviar resposta\n");
                         else
                             printf("Resposta enviada com sucesso, aguardando dados\n");
                         
+
                         //TODO tratar erros aqui
+                        //RECEBENDO DADOS  
                         while (getTipo(buffer) != 17){
                             recebeResposta(soquete,buffer);
                             //dados

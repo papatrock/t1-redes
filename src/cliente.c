@@ -6,6 +6,9 @@ void menu(){
 }
 
 int main(int argc, char *argv[]){
+    
+    unsigned char sequencia,CRC;
+    sequencia = CRC = 0;
 
     int soquete = criaSocket(INTERFACE); 
     int ifindex = if_nametoindex(INTERFACE);
@@ -53,10 +56,11 @@ int main(int argc, char *argv[]){
                     printf("Erro ao abrir arquivo, verifique se o arquivo existe\n");
                 else{   
                     fseek(arq,0L,SEEK_END); // ponteiro para o final do arquivo
-                    int tamanho = ftell(arq);
-                    printf("TAMANHO:%d\n",tamanho);
+                    int tamanhoINT = ftell(arq);
+                    printf("TAMANHO:%d\n",tamanhoINT);
+                    char tamanho[63];
+                    sprintf(tamanho,"%d",tamanhoINT); //converte tamanho INT para um char*
                     fseek(arq, 0L, SEEK_SET); // volta com o ponteiro pro inicio do arquivo
-                    //TODO setar tamanho correto
                     // manda msg com o nome do arquivo e tamanho
                     protocolo_t mensagem = criaMensagem(0,0,4,segundo_token,0);
                     if(sendto(soquete,&mensagem,sizeof(mensagem),0,(struct sockaddr*)&endereco, sizeof(endereco)) ==-1)
@@ -87,6 +91,23 @@ int main(int argc, char *argv[]){
                             printf("Recebeu um ok\n");
 
                             #endif
+
+                            // ENVIA TAMANHO
+                            mensagem = criaMensagem(strlen(tamanho),sequencia,0b01111,tamanho,CRC);
+                            
+                            if(sendto(soquete,&mensagem,sizeof(mensagem),0,(struct sockaddr*)&endereco, sizeof(endereco)) ==-1)
+                            {
+                                printf("erro ao enviar mensagem\n");
+                                continue;
+                            }
+                            printf("tamanho enviado, aguardando ok\n");
+                            while (!recebeResposta(soquete,bufferResposta)){}
+                            if(getTipo(bufferResposta) != 2){
+                                printf("não recebeu um ok\n");
+                                continue;
+                            }
+                            
+                            
                             mensagem = criaMensagem(0,0,16,"",0);
                             char buffer[63];
                             size_t bytesLidos;
