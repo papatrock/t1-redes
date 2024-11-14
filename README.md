@@ -6,6 +6,9 @@
 - [x]  criar diretório back
 - [ ]  Verificar porq final do arquivo está diferente após envio
 - [ ]  Implementar a verificação de tamanho
+- [ ]  Implementar backup
+- [ ]  Implementar restaura
+- [ ]  Implementar verifica
 
 # Descrição do trabalho
 * Implementar um servidor para backup de arquivos usando Raw Sockets
