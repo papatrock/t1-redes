@@ -51,7 +51,7 @@ int main(int argc, char *argv[]){
                 char path[100]; 
                 strcpy(path, "Cliente/"); 
                 strcat(path, segundo_token);
-                FILE *arq = fopen (path,"r");
+                FILE *arq = fopen (path,"rb");
                 if(!arq)
                     printf("Erro ao abrir arquivo, verifique se o arquivo existe\n");
                 else{   

@@ -128,9 +128,8 @@ int main() {
                                 #endif
                                 char dados[63];
                                 memset(dados, 0, sizeof(dados)); // limpa o buffer
-                                strncpy(dados,(char*)getDados(buffer),getTamanho(buffer));
-                                fwrite(dados,strlen(dados),1,arq);
-                                fflush(arq);
+                                memcpy(dados, getDados(buffer), getTamanho(buffer));
+                                fwrite(dados,getTamanho(buffer),1,arq);
                             }
                                 
                         }
