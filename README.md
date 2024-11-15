@@ -7,8 +7,17 @@
 - [ ]  Verificar porq final do arquivo está diferente após envio
 - [ ]  Implementar a verificação de tamanho
 - [ ]  Implementar backup
+   - [x] Fluxo princial
+   - [ ] Fluxo de erros
+   - [ ] NACKS 
 - [ ]  Implementar restaura
+   - [ ] Fluxo princial
+   - [ ] Fluxo de erros
+   - [ ] NACKS 
 - [ ]  Implementar verifica
+   - [ ] Fluxo princial
+   - [ ] Fluxo de erros
+   - [ ] NACKS 
 
 # Descrição do trabalho
 * Implementar um servidor para backup de arquivos usando Raw Sockets
