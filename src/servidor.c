@@ -29,6 +29,7 @@ int main() {
     unsigned char macFonte[6];
     struct sockaddr_ll path_addr;
     int ifindex = if_nametoindex(INTERFACE);
+    unsigned char sequencia = 0;
     
     int soquete = criaSocket(INTERFACE);
 
@@ -85,7 +86,7 @@ int main() {
                     {
                         printf("erro ao abrir o arquivo, enviando nack\n");
                         //Manda um nack
-                        resposta = criaMensagem(0,0,1,"Erro ao abrir arquivo",0);
+                        resposta = criaMensagem(strlen("Erro ao abrir arquivo"),sequencia,1,"Erro ao abrir arquivo",0);
                         if(!enviaResposta(soquete,path_addr,resposta))
                             printf("Erro ao enviar resposta\n");
                         else
@@ -108,7 +109,7 @@ int main() {
                         printMensagem(buffer);
                         // SE COUBER:
                         
-                        resposta = criaMensagem(0,0,2,"Ok!",0);
+                        resposta = criaMensagem(3,0,2,"Ok!",0);
                         
                         if(!enviaResposta(soquete,path_addr,resposta))
                                 printf("Erro ao enviar resposta\n");
@@ -119,17 +120,23 @@ int main() {
                         //TODO tratar erros aqui
                         //RECEBENDO DADOS  
                         while (getTipo(buffer) != 17){
-                            recebeResposta(soquete,buffer);
+
+                            while(!recebeResposta(soquete,buffer)){}
                             //dados
                             if(getTipo(buffer) == 16){
                                 #ifdef _DEBUG_ 
                                 printf("Recebeu um pacote de dados:\n");
                                 printMensagem(buffer);
                                 #endif
+                                //TODO verificar erro nos dados aqui
+                                
+
                                 char dados[63];
                                 memset(dados, 0, sizeof(dados)); // limpa o buffer
                                 memcpy(dados, getDados(buffer), getTamanho(buffer));
                                 fwrite(dados,getTamanho(buffer),1,arq);
+                                resposta = criaMensagem(0,0,0,"",0);
+                                enviaResposta(soquete,path_addr,resposta);
                             }
                                 
                         }
@@ -138,8 +145,6 @@ int main() {
                     }
                 }
 
-            //protocolo_t resposta = criaMensagem(0,0,0,"Reposta teste",0);
-            //enviaResposta(soquete, path_addr, resposta);
         }
     }
 

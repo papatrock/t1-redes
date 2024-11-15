@@ -110,7 +110,7 @@ int main(int argc, char *argv[]){
                             
                             
                             mensagem = criaMensagem(0,0,16,"",0);
-                            char buffer[63];
+                            char buffer[63]; //Buffer de leitura de arquivo
                             size_t bytesLidos;
                             //TODO implementar sequencia neste loop
                             while ((bytesLidos = fread(buffer, 1, sizeof(buffer), arq)) > 0)
@@ -123,8 +123,26 @@ int main(int argc, char *argv[]){
                                 #endif
                                 
                                 sendto(soquete,&mensagem,sizeof(mensagem),0,(struct sockaddr*)&endereco, sizeof(endereco));
+                                //Aguarda resposta
+                                while (!recebeResposta(soquete,bufferResposta)){}
+                                //NACK
+                                while(getTipo(bufferResposta) == 1){
+                                    #ifdef _DEBUG_
+                                    printf("Recebeum um NACK, enviando mensagem novamente\n");
+                                    #endif
+                                    sendto(soquete,&mensagem,sizeof(mensagem),0,(struct sockaddr*)&endereco, sizeof(endereco));
+                                    while (!recebeResposta(soquete,bufferResposta)){}
+                                    
+                                }
+                                //tratar outros erros aqui
+                                if(getTipo(bufferResposta) != 0){
+
+                                }
+                                //ACK
+
 
                             }
+                            //Fim da transmissão de dados
                             mensagem = criaMensagem(0,0,17,"Fim da transmissão de dados",0);
                             sendto(soquete,&mensagem,sizeof(mensagem),0,(struct sockaddr*)&endereco, sizeof(endereco));
                             printf("\nBackup feito com sucesso\n\n");
