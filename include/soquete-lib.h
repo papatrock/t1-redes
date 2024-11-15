@@ -17,7 +17,7 @@
 
 
 
-#define INTERFACE "wlan0"
+#define INTERFACE "enp2s0"
 #define PACOTE 63
 
 struct protocolo{

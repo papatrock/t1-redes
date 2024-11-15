@@ -126,7 +126,9 @@ int main() {
                                 printf("Recebeu um pacote de dados:\n");
                                 printMensagem(buffer);
                                 #endif
-                                char *dados = (char*)getDados(buffer);
+                                char dados[63];
+                                memset(dados, 0, sizeof(dados)); // limpa o buffer
+                                strncpy(dados,(char*)getDados(buffer),getTamanho(buffer));
                                 fwrite(dados,strlen(dados),1,arq);
                                 fflush(arq);
                             }

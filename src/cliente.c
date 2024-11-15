@@ -62,11 +62,9 @@ int main(int argc, char *argv[]){
                     sprintf(tamanho,"%d",tamanhoINT); //converte tamanho INT para um char*
                     fseek(arq, 0L, SEEK_SET); // volta com o ponteiro pro inicio do arquivo
                     // manda msg com o nome do arquivo e tamanho
-                    protocolo_t mensagem = criaMensagem(0,0,4,segundo_token,0);
+                    protocolo_t mensagem = criaMensagem(strlen(segundo_token),0,4,segundo_token,0);
                     if(sendto(soquete,&mensagem,sizeof(mensagem),0,(struct sockaddr*)&endereco, sizeof(endereco)) ==-1)
-                    {
                         printf("erro ao enviar mensagem\n");
-                    }
                     else
                     {
 
@@ -82,6 +80,7 @@ int main(int argc, char *argv[]){
                         printf("Resposta recebida:\n");
                         printMensagem(bufferResposta);
                         #endif
+
                         //TODO tratar resposta
                         switch (getTipo(bufferResposta))
                         {
@@ -102,6 +101,8 @@ int main(int argc, char *argv[]){
                             }
                             printf("tamanho enviado, aguardando ok\n");
                             while (!recebeResposta(soquete,bufferResposta)){}
+
+                            //TODO tradar outras respostas
                             if(getTipo(bufferResposta) != 2){
                                 printf("não recebeu um ok\n");
                                 continue;
@@ -114,10 +115,10 @@ int main(int argc, char *argv[]){
                             //TODO implementar sequencia neste loop
                             while ((bytesLidos = fread(buffer, 1, sizeof(buffer), arq)) > 0)
                             {
-                                #ifdef _DEBUG_
-
-                                printf("Mandando pacote:\n");
                                 memcpy(mensagem.dados, buffer, bytesLidos);
+                                mensagem.tamanho = bytesLidos;
+                                #ifdef _DEBUG_
+                                printf("Mandando pacote:\n");
                                 printMensagemEstruturada(mensagem);
                                 #endif
                                 
@@ -125,12 +126,8 @@ int main(int argc, char *argv[]){
 
                             }
                             mensagem = criaMensagem(0,0,17,"Fim da transmissão de dados",0);
+                            sendto(soquete,&mensagem,sizeof(mensagem),0,(struct sockaddr*)&endereco, sizeof(endereco));
                             printf("\nBackup feito com sucesso\n\n");
-                            menu();
-                            
-
-
-
                         break;
                         
                         default:
