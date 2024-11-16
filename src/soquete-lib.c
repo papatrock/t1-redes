@@ -87,6 +87,7 @@ int recebeResposta(int soquete,unsigned char *buffer) {
     return 1;   
 
 }
+
 void print_byte_as_binary(unsigned char byte, int bits) {
     for (int i = bits - 1; i >= 0; i--) {
         printf("%d", (byte >> i) & 1);

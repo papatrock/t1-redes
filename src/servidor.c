@@ -10,11 +10,9 @@
  */
 int enviaResposta(int soquete, struct sockaddr_ll endereco, protocolo_t resposta) {
 
-    if (sendto(soquete, &resposta, sizeof(resposta), 0, (struct sockaddr*)&endereco, sizeof(endereco)) == -1) {
+    if (sendto(soquete, &resposta, sizeof(resposta), 0, (struct sockaddr*)&endereco, sizeof(endereco)) == -1) 
         return 0;
-    } else {
-        return 1;
-    }
+    return 1;
 }
 
 
@@ -85,7 +83,7 @@ int main() {
                     if(!arq)
                     {
                         printf("erro ao abrir o arquivo, enviando nack\n");
-                        //Manda um nack
+                        //TODO troca nack para código de erro
                         resposta = criaMensagem(strlen("Erro ao abrir arquivo"),sequencia,1,"Erro ao abrir arquivo",0);
                         if(!enviaResposta(soquete,path_addr,resposta))
                             printf("Erro ao enviar resposta\n");
@@ -102,6 +100,7 @@ int main() {
                                 printf("Erro ao enviar resposta\n");
                         else
                             printf("Resposta enviada com sucesso, aguardando tamanho\n");
+                        sequencia = sequencia + 1;
 
                         recebeResposta(soquete,buffer);
                         //TODO verificar se cabe em disco
@@ -109,7 +108,7 @@ int main() {
                         printMensagem(buffer);
                         // SE COUBER:
                         
-                        resposta = criaMensagem(3,0,2,"Ok!",0);
+                        resposta = criaMensagem(3,sequencia,2,"Ok!",0);
                         
                         if(!enviaResposta(soquete,path_addr,resposta))
                                 printf("Erro ao enviar resposta\n");
@@ -135,8 +134,9 @@ int main() {
                                 memset(dados, 0, sizeof(dados)); // limpa o buffer
                                 memcpy(dados, getDados(buffer), getTamanho(buffer));
                                 fwrite(dados,getTamanho(buffer),1,arq);
-                                resposta = criaMensagem(0,0,0,"",0);
+                                resposta = criaMensagem(0,sequencia,0,"",0);
                                 enviaResposta(soquete,path_addr,resposta);
+                                sequencia = sequencia + 1;
                             }
                                 
                         }
