@@ -1,5 +1,5 @@
 CFLAGS = -Wall
-clienteObjs = cliente.o soquete-lib.o utils.o cliente-restaura.o
+clienteObjs = cliente.o soquete-lib.o utils.o cliente-restaura.o cliente-backup.o
 servidorObjs = servidor.o soquete-lib.o utils.o servidor-restaura.o
 
 all: servidor cliente
@@ -30,6 +30,9 @@ cliente.o: src/cliente.c include/cliente.h
 
 cliente-restaura.o: src/cliente-restaura.c include/cliente-restaura.h include/soquete-lib.h
 	gcc $(CFLAGS) -c src/cliente-restaura.c -o cliente-restaura.o
+
+cliente-backup.o: src/cliente-backup.c include/cliente.h include/soquete-lib.h include/utils.h
+	gcc $(CFLAGS) -c src/cliente-backup.c -o cliente-backup.o
 
 clean:
 	rm -f *~ *.o
