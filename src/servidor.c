@@ -1,3 +1,4 @@
+#include "../include/servidor-restaura.h"
 #include "../include/servidor.h"
 #include "../include/utils.h"
 
