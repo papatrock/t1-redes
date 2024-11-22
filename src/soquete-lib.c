@@ -85,7 +85,6 @@ int recebeResposta(int soquete,unsigned char *buffer) {
         return 0;
 
     return 1;   
-
 }
 
 void print_byte_as_binary(unsigned char byte, int bits) {
@@ -162,4 +161,24 @@ unsigned char getTipo(unsigned char *mensagem)
 
 unsigned char *getDados(unsigned char *mensagem){
     return &mensagem[4];
+}
+
+char *getErrors(unsigned char *mensagem) {
+    char errors = (char) (*getDados(mensagem));
+
+    switch (errors)
+    {
+    case SEM_PERMISSAO:
+        return "Sem permissão para acessar o arquivo";
+        break;
+    case SEM_ESPACO:
+        return "Sem espaço para armazenar o arquivo";
+        break;
+    case ARQUIVO_NAO_ENCONTRADO:
+        return "Arquivo não encontrado";
+        break;
+    default:
+        return "Um erro desconhecido ocorreu";
+        break;
+    }
 }

@@ -52,9 +52,9 @@ Para e espera
 | 00100 | Backup  |
 | 00101 | Restaura  |
 | 00110 | Verifica  |
+| 01101 | OK + checksum  |
 | 01110 | OK + TAM  |
 | 01111 | Tamanho  |
-| 01101 | OK + checksum  |
 | 10000 | Dados  |
 | 10001 | Fim da transmissão de dados  |
 | 11111 | Erro  |
