@@ -32,8 +32,10 @@ void handle_backup(unsigned char* buffer, int soquete, struct sockaddr_ll path_a
 
         recebeResposta(soquete,buffer);
         //TODO verificar se cabe em disco
+        #ifdef _DEBUG_
         printf("recebeu dados:\n");
         printMensagem(buffer);
+        #endif
         // SE COUBER:
         
         resposta = criaMensagem(3,sequencia,OK,"Ok!",0);

@@ -22,6 +22,7 @@
 
 #define INTERFACE "enp2s0"
 #define PACOTE 63
+#define POLINOMIO_DIVISOR 100000111
 
 // tipos de mensagens
 #define ACK 0
@@ -77,6 +78,12 @@ unsigned char getTipo(unsigned char *mensagem);
 
 unsigned char *getDados(unsigned char *mensagem);
 
+unsigned char *getCRC(unsigned char *mensagem);
+
 char *getErrors(unsigned char *mensagem);
+
+unsigned char geraCRC(protocolo_t mensagemOriginal);
+
+int verificaCRC(char *mensagemRecebida);
 
 #endif

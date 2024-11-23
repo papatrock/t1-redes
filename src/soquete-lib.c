@@ -1,5 +1,6 @@
 #include "../include/soquete-lib.h"
 
+
 int criaSocket(char *interface)
 {
     int soquete = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
@@ -63,7 +64,7 @@ protocolo_t criaMensagem(unsigned char tamanho,unsigned char sequencia,unsigned 
     mensagem.sequencia = 0b00011111 & sequencia;
     mensagem.tipo = 0b00011111 & tipo;
     strncpy((char *)mensagem.dados, dados, sizeof(mensagem.dados) - 1);
-    mensagem.CRC = CRC;
+    mensagem.CRC = geraCRC(mensagem);
 
     return mensagem;
 }
@@ -119,6 +120,10 @@ void printMensagem(unsigned char *mensagem) {
     }
     printf("\n");
 
+    printf("CRC:\n");
+    print_byte_as_binary(getCRC(mensagem), 8);
+    printf("\n");
+
 }
 
 void printMensagemEstruturada(protocolo_t mensagem) {
@@ -163,6 +168,10 @@ unsigned char *getDados(unsigned char *mensagem){
     return &mensagem[4];
 }
 
+unsigned char *getCRC(unsigned char *mensagem){
+    return mensagem[12];
+}
+
 char *getErrors(unsigned char *mensagem) {
     char errors = (char) (*getDados(mensagem));
 
@@ -181,4 +190,31 @@ char *getErrors(unsigned char *mensagem) {
         return "Um erro desconhecido ocorreu";
         break;
     }
+}
+
+unsigned char geraCRC(protocolo_t mensagem){
+    unsigned char buffer[sizeof(mensagem)];
+    size_t pos = 0;
+
+    buffer[pos++] = mensagem.marcador;
+    buffer[pos++] = mensagem.tamanho & 0b00111111;
+    buffer[pos++] = mensagem.sequencia & 0b00011111; 
+    buffer[pos++] = mensagem.tipo & 0b00011111;      
+    memcpy(buffer + pos, mensagem.dados, sizeof(mensagem.dados));
+    pos += sizeof(mensagem.dados);
+
+    unsigned char crc = 0; // Inicializa o CRC como 0
+    for (size_t i = 0; i < pos; i++) {
+        crc ^= buffer[i]; // XOR entre o CRC atual e o byte de dados
+
+        for (int j = 0; j < 8; j++) { // Processa os 8 bits de cada byte
+            if (crc & 0b10000000) { // Se o bit mais significativo for 1
+                crc = (crc << 1) ^ POLINOMIO_DIVISOR; // Desloca e aplica o polinômio
+            } else {
+                crc <<= 1; // Apenas desloca
+            }
+        }
+    }
+    return crc;
+
 }
