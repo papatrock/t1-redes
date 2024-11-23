@@ -18,6 +18,8 @@
    - [ ] Fluxo princial
    - [ ] Fluxo de erros
    - [ ] NACKS 
+# CRC
+CRC-8-CCITT	x8+x2+x+1x8+x2+x+1	100000111
 
 # Descrição do trabalho
 * Implementar um servidor para backup de arquivos usando Raw Sockets
