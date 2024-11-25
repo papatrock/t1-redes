@@ -168,28 +168,19 @@ unsigned char *getDados(unsigned char *mensagem){
     return &mensagem[4];
 }
 
-unsigned char *getCRC(unsigned char *mensagem){
+unsigned char getCRC(unsigned char *mensagem){
     return mensagem[12];
 }
 
-char *getErrors(unsigned char *mensagem) {
-    char errors = (char) (*getDados(mensagem));
-
-    switch (errors)
-    {
-    case SEM_PERMISSAO:
+char *getErrors(unsigned char *errors) {
+    if(strcmp(errors, SEM_PERMISSAO))
         return "Sem permissão para acessar o arquivo";
-        break;
-    case SEM_ESPACO:
+    else if(strcmp(errors, SEM_ESPACO))
         return "Sem espaço para armazenar o arquivo";
-        break;
-    case ARQUIVO_NAO_ENCONTRADO:
+    else if(strcmp(errors, ARQUIVO_NAO_ENCONTRADO))
         return "Arquivo não encontrado";
-        break;
-    default:
+    else
         return "Um erro desconhecido ocorreu";
-        break;
-    }
 }
 
 unsigned char geraCRC(protocolo_t mensagem){

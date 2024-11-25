@@ -39,9 +39,9 @@
 #define ERRO 31
 
 // tipos de erro
-#define SEM_PERMISSAO '1'
-#define SEM_ESPACO '2'
-#define ARQUIVO_NAO_ENCONTRADO '3'
+#define SEM_PERMISSAO "1"
+#define SEM_ESPACO "2"
+#define ARQUIVO_NAO_ENCONTRADO "3"
 
 struct protocolo{
     unsigned char marcador; //8 bits
@@ -78,9 +78,9 @@ unsigned char getTipo(unsigned char *mensagem);
 
 unsigned char *getDados(unsigned char *mensagem);
 
-unsigned char *getCRC(unsigned char *mensagem);
+unsigned char getCRC(unsigned char *mensagem);
 
-char *getErrors(unsigned char *mensagem);
+char *getErrors(unsigned char *errors);
 
 unsigned char geraCRC(protocolo_t mensagemOriginal);
 
