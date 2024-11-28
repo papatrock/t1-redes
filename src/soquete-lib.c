@@ -213,7 +213,7 @@ unsigned char geraCRC(protocolo_t mensagem){
     printf("buffer pos xor: %d\n",buffer);
     print_byte_as_binary(buffer,16);
     printf("\n\n");
-    getchar();
+    //getchar();
 
 
     return 0b00000000; // temp
