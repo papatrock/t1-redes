@@ -184,28 +184,38 @@ char *getErrors(unsigned char *errors) {
 }
 
 unsigned char geraCRC(protocolo_t mensagem){
-    unsigned char buffer[sizeof(mensagem)];
-    size_t pos = 0;
+    unsigned short buffer; // 2 bytes
+    unsigned short buffer_mask = 0b0000000111111111;
+    protocolo_t tmp = mensagem;
+    unsigned int crc = 0;
+    buffer = tmp.marcador; // 8 bits do marcador
+    buffer <<= 1;
+    // tamanho = 0b00 001111
+    // buffer = 0b01111111100
+    tmp.tamanho <<= 5;
+    // 00 001111
+    tmp.tamanho <<=3;
+    printf("tamanho shifitado %d\n",tmp.tamanho);
+    print_byte_as_binary(tmp.tamanho,8);
+    printf("\n\n");
+    buffer = (buffer & buffer_mask) | (tmp.tamanho & 0b00111111);
+    printf("buffer pos and: %d\n",buffer);
+    print_byte_as_binary(buffer,16);
+    printf("\n\n");
+    
+    buffer = POLINOMIO_DIVISOR ^ buffer;
+   /*
+    * 0000000 011111100 buffer
+    * 0000000 100000111 POLINOMIO_DIVISOR
+    * ---------
+    * 0000000 111111011
+    * */ 
+    printf("buffer pos xor: %d\n",buffer);
+    print_byte_as_binary(buffer,16);
+    printf("\n\n");
+    getchar();
 
-    buffer[pos++] = mensagem.marcador;
-    buffer[pos++] = mensagem.tamanho & 0b00111111;
-    buffer[pos++] = mensagem.sequencia & 0b00011111; 
-    buffer[pos++] = mensagem.tipo & 0b00011111;      
-    memcpy(buffer + pos, mensagem.dados, sizeof(mensagem.dados));
-    pos += sizeof(mensagem.dados);
 
-    unsigned char crc = 0; // Inicializa o CRC como 0
-    for (size_t i = 0; i < pos; i++) {
-        crc ^= buffer[i]; // XOR entre o CRC atual e o byte de dados
-
-        for (int j = 0; j < 8; j++) { // Processa os 8 bits de cada byte
-            if (crc & 0b10000000) { // Se o bit mais significativo for 1
-                crc = (crc << 1) ^ POLINOMIO_DIVISOR; // Desloca e aplica o polinômio
-            } else {
-                crc <<= 1; // Apenas desloca
-            }
-        }
-    }
-    return crc;
+    return 0b00000000; // temp
 
 }
