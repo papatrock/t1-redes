@@ -63,7 +63,10 @@ protocolo_t criaMensagem(unsigned char tamanho,unsigned char sequencia,unsigned 
     mensagem.tamanho = 0b00111111 & tamanho;
     mensagem.sequencia = 0b00011111 & sequencia;
     mensagem.tipo = 0b00011111 & tipo;
-    strncpy((char *)mensagem.dados, dados, sizeof(mensagem.dados) - 1);
+    mensagem.dados = malloc(sizeof(char)*(tamanho+1));
+    // TODO verificar malloc
+
+    strncpy((char *)mensagem.dados, dados, tamanho);
     mensagem.CRC = geraCRC(mensagem);
 
     return mensagem;
@@ -115,7 +118,7 @@ void printMensagem(unsigned char *mensagem) {
     printf("\n");
 
     printf("Dados (ASCII): ");
-    for (int i = 3; i < 66; i++) {
+    for (int i = 3; i < getTamanho(mensagem); i++) {
         printf("%c", mensagem[i]);
     }
     printf("\n");
@@ -143,6 +146,32 @@ void printMensagemEstruturada(protocolo_t mensagem) {
     printf("\n");
 
     printf("Dados (ASCII): %s",(char*)mensagem.dados);
+    printf("\n");
+
+}
+
+void printMensagemEstruturadaBinario(protocolo_t mensagem) {
+    printf("Marcador: ");
+    print_byte_as_binary(mensagem.marcador,8);
+    printf("\n");
+
+    printf("Tamanho: ");
+    print_byte_as_binary(mensagem.tamanho,6);
+    printf("\n");
+
+    printf("Sequencia: ");
+    print_byte_as_binary(mensagem.sequencia,5);
+    printf("\n");
+
+    printf("Tipo: ");
+    print_byte_as_binary(mensagem.tipo,5);
+    printf("\n");
+
+    printf("Dados (ASCII): %s",(char*)mensagem.dados);
+    printf("\n");
+
+    printf("CRC: ");
+    print_byte_as_binary(mensagem.CRC,8);
     printf("\n");
 
 }
@@ -182,38 +211,39 @@ char *getErrors(unsigned char *errors) {
     else
         return "Um erro desconhecido ocorreu";
 }
+/*
+    Concatena struct mensagem em uma só string
+    para facilitar o xor com o polinomio
+*/
+void empacota(struct protocolo *p, unsigned char *mensagem_concat) {
+   
+    memset(mensagem_concat, 0, p->tamanho + 6); 
+
+    mensagem_concat[0] = p->marcador;
+    mensagem_concat[1] = (p->tamanho << 2) | (p->sequencia >> 3);
+    mensagem_concat[2] = (p->sequencia << 5) | (p->tipo);
+    
+    memcpy(&mensagem_concat[3], p->dados, p->tamanho); 
+    
+    mensagem_concat[p->tamanho + 3] = p->CRC;
+}
 
 unsigned char geraCRC(protocolo_t mensagem){
     unsigned short buffer; // 2 bytes
-    unsigned short buffer_mask = 0b0000000111111111;
-    protocolo_t tmp = mensagem;
-    unsigned int crc = 0;
-    buffer = tmp.marcador; // 8 bits do marcador
-    buffer <<= 1;
-    // tamanho = 0b00 001111
-    // buffer = 0b01111111100
-    tmp.tamanho <<= 5;
-    // 00 001111
-    tmp.tamanho <<=3;
-    printf("tamanho shifitado %d\n",tmp.tamanho);
-    print_byte_as_binary(tmp.tamanho,8);
-    printf("\n\n");
-    buffer = (buffer & buffer_mask) | (tmp.tamanho & 0b00111111);
-    printf("buffer pos and: %d\n",buffer);
-    print_byte_as_binary(buffer,16);
-    printf("\n\n");
+    unsigned char *tmp = malloc(sizeof(unsigned char)*68);
     
-    buffer = POLINOMIO_DIVISOR ^ buffer;
-   /*
-    * 0000000 011111100 buffer
-    * 0000000 100000111 POLINOMIO_DIVISOR
-    * ---------
-    * 0000000 111111011
-    * */ 
-    printf("buffer pos xor: %d\n",buffer);
-    print_byte_as_binary(buffer,16);
-    printf("\n\n");
-    //getchar();
+    empacota(&mensagem,tmp);
+
+    /*
+    for (int i = 0; i < mensagem.tamanho + 6; i++) {
+        //print_byte_as_binary(tmp[i],8);
+        printf("%02X ", tmp[i]);
+    }
+    printf("\n");
+    printf("TMP:%s\n",tmp);
+    */
+    
+    getchar();
 
 
     return 0b00000000; // temp
