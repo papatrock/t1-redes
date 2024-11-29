@@ -63,11 +63,9 @@ protocolo_t criaMensagem(unsigned char tamanho,unsigned char sequencia,unsigned 
     mensagem.tamanho = 0b00111111 & tamanho;
     mensagem.sequencia = 0b00011111 & sequencia;
     mensagem.tipo = 0b00011111 & tipo;
-    mensagem.dados = malloc(sizeof(char)*(tamanho+1));
-    // TODO verificar malloc
 
-    strncpy((char *)mensagem.dados, dados, tamanho);
-    mensagem.CRC = geraCRC(mensagem);
+    memcpy(mensagem.dados, dados, tamanho);
+    mensagem.CRC = geraCRC(mensagem); 
 
     return mensagem;
 }
@@ -243,7 +241,7 @@ unsigned char geraCRC(protocolo_t mensagem){
     printf("TMP:%s\n",tmp);
     */
     
-    getchar();
+
 
 
     return 0b00000000; // temp

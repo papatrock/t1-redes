@@ -22,7 +22,8 @@
 
 #define INTERFACE "enp2s0"
 #define PACOTE 63
-#define POLINOMIO_DIVISOR 100000111
+#define POLINOMIO_DIVISOR 0b100000111
+#define MARCADOR 0b01111110
 
 // tipos de mensagens
 #define ACK 0
@@ -48,7 +49,7 @@ struct protocolo{
     unsigned char tamanho; //6 bits
     unsigned char sequencia; //5 bits
     unsigned char tipo; //5 bits
-    unsigned char dados[63];
+    unsigned char dados[63]; //0 até 63 bytes
     unsigned char CRC; //8 bits
 };
 
