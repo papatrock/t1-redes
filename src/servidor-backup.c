@@ -5,8 +5,9 @@ void handle_backup(unsigned char* buffer, int soquete, struct sockaddr_ll path_a
     // Abre  pasta Backup e abre (ou criar) o  arquivo com o nome solicitado para receber dados
     char path[100]; 
     strcpy(path, "Backup/"); 
+    printf("%s\n",(char*)buffer);
     strcat(path, (char*)getDados(buffer)); 
-
+    printf("PATH:%s",path);
     FILE *arq = fopen (path,"wb+");
     if(!arq)
     {

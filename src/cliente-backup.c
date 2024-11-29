@@ -13,7 +13,6 @@ void handle_backup(char *segundo_token,struct sockaddr_ll endereco,int soquete,u
     else {
         fseek(arq,0L,SEEK_END); // ponteiro para o final do arquivo
         int tamanhoINT = ftell(arq);
-        printf("TAMANHO:%d\n",tamanhoINT);
         char tamanho[63];
         sprintf(tamanho,"%d",tamanhoINT); //converte tamanho INT para um char*
         fseek(arq, 0L, SEEK_SET); // volta com o ponteiro pro inicio do arquivo
