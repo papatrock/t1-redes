@@ -200,11 +200,11 @@ unsigned char getCRC(unsigned char *mensagem){
 }
 
 char *getErrors(unsigned char *errors) {
-    if(strcmp(errors, SEM_PERMISSAO))
+    if(strcmp((char*)errors, SEM_PERMISSAO))
         return "Sem permissão para acessar o arquivo";
-    else if(strcmp(errors, SEM_ESPACO))
+    else if(strcmp((char*)errors, SEM_ESPACO))
         return "Sem espaço para armazenar o arquivo";
-    else if(strcmp(errors, ARQUIVO_NAO_ENCONTRADO))
+    else if(strcmp((char*)errors, ARQUIVO_NAO_ENCONTRADO))
         return "Arquivo não encontrado";
     else
         return "Um erro desconhecido ocorreu";
