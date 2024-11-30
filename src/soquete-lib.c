@@ -244,7 +244,7 @@ unsigned char geraCRC(unsigned char *ptr, int count) {
     int deslocamento = 0;
     unsigned char crc = 0;
 
-    while (deslocamento < count-9) {
+    while (deslocamento <= count-9) {
         if (ptr_copia[deslocamento] == '0') {
             deslocamento++;
         } else {
@@ -266,6 +266,7 @@ unsigned char geraCRC(unsigned char *ptr, int count) {
 }
 
 int verificaCRC(unsigned char *mensagem){
+    printMensagem(mensagem);
     unsigned char resto = geraCRC(mensagem,68);
     printf("RESTO AQUI Ó %d\n",resto);
     return resto;
