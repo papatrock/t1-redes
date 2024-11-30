@@ -50,7 +50,7 @@ int main(int argc, char *argv[]){
         }
         else if(strcmp(primeiro_token, "restaura") == 0){
             printf("Restaura\n");
-            handle_restaura(segundo_token, endereco, soquete, &bufferResposta);
+            handle_restaura(segundo_token, endereco, soquete, bufferResposta);
         }
         else if (strcmp(primeiro_token,"verifica") == 0){
             printf("Verifica\n");
@@ -60,6 +60,7 @@ int main(int argc, char *argv[]){
         }
 
         menu();
+        fflush(stdin);
         fgets(entrada, 63, stdin);
         entrada[strcspn(entrada, "\n")] = '\0';
     }
