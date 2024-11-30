@@ -2,7 +2,6 @@
 
 void handle_backup(char *segundo_token,struct sockaddr_ll endereco,int soquete,unsigned char sequencia, unsigned char CRC,unsigned char *bufferResposta)
 {       
-    printf("Backup\n");
     
     char path[100]; 
     strcpy(path, "Cliente/"); 

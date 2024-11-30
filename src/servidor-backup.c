@@ -7,7 +7,6 @@ void handle_backup(unsigned char* buffer, int soquete, struct sockaddr_ll path_a
     strcpy(path, "Backup/"); 
     printf("%s\n",(char*)buffer);
     strcat(path, (char*)getDados(buffer)); 
-    printf("PATH:%s",path);
     FILE *arq = fopen (path,"wb+");
     if(!arq)
     {

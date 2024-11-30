@@ -16,6 +16,7 @@
 #include <libgen.h>
 #include <dirent.h>
 #include <sys/types.h>
+#include "../include/utils.h"
 
 
 
@@ -83,8 +84,10 @@ unsigned char getCRC(unsigned char *mensagem);
 
 char *getErrors(unsigned char *errors);
 
-unsigned char geraCRC(protocolo_t mensagemOriginal);
+unsigned char geraCRC(unsigned char *ptr, int count);
 
-int verificaCRC(char *mensagemRecebida);
+int verificaCRC(unsigned char *mensagemRecebida);
+
+void printBits(unsigned char byte);
 
 #endif

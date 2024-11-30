@@ -1,4 +1,5 @@
 #include "../include/soquete-lib.h"
+#include <ctype.h>
 
 
 int criaSocket(char *interface)
@@ -46,6 +47,23 @@ void inicializaSockaddr_ll(struct sockaddr_ll *sockaddr, int ifindex, unsigned c
     }
 }
 
+/*
+    Concatena struct mensagem em uma só string
+    para facilitar o xor com o polinomio
+*/
+void empacota(protocolo_t *mensagem, unsigned char *mensagem_concat) {
+    memset(mensagem_concat, 0, 67); 
+
+    mensagem_concat[0] = mensagem->marcador;
+    mensagem_concat[1] = mensagem->tamanho;
+    mensagem_concat[2] = mensagem->sequencia;
+    mensagem_concat[3] = mensagem->tipo;
+
+    // Dados: (tamanho) bytes de dados
+    memcpy(&mensagem_concat[3], mensagem->dados, mensagem->tamanho);
+}
+
+
 /**
  * Cria uma mensagem do tipo protocolo_t e a inicializa com os parametros
  *
@@ -59,13 +77,15 @@ void inicializaSockaddr_ll(struct sockaddr_ll *sockaddr, int ifindex, unsigned c
 protocolo_t criaMensagem(unsigned char tamanho,unsigned char sequencia,unsigned char tipo,char *dados,unsigned char CRC) {
     protocolo_t mensagem; 
     
-    mensagem.marcador = 126;
+    mensagem.marcador = MARCADOR;
     mensagem.tamanho = 0b00111111 & tamanho;
     mensagem.sequencia = 0b00011111 & sequencia;
     mensagem.tipo = 0b00011111 & tipo;
-
     memcpy(mensagem.dados, dados, tamanho);
-    mensagem.CRC = geraCRC(mensagem); 
+
+    unsigned char *mensagem_concat = malloc(sizeof (unsigned char) * 67);
+    empacota(&mensagem,mensagem_concat);
+    mensagem.CRC = geraCRC(mensagem_concat,sizeof(mensagem) - 1); 
 
     return mensagem;
 }
@@ -94,6 +114,8 @@ void print_byte_as_binary(unsigned char byte, int bits) {
         printf("%d", (byte >> i) & 1);
     }
 }
+
+
 
 void printMensagem(unsigned char *mensagem) {
     printf("Marcador: ");
@@ -165,7 +187,10 @@ void printMensagemEstruturadaBinario(protocolo_t mensagem) {
     print_byte_as_binary(mensagem.tipo,5);
     printf("\n");
 
-    printf("Dados (ASCII): %s",(char*)mensagem.dados);
+    printf("Dados : ");
+    for (int i = 0; i < mensagem.tamanho; i++) {
+        print_byte_as_binary(mensagem.dados[i],8);
+    }
     printf("\n");
 
     printf("CRC: ");
@@ -209,41 +234,40 @@ char *getErrors(unsigned char *errors) {
     else
         return "Um erro desconhecido ocorreu";
 }
-/*
-    Concatena struct mensagem em uma só string
-    para facilitar o xor com o polinomio
-*/
-void empacota(struct protocolo *p, unsigned char *mensagem_concat) {
-   
-    memset(mensagem_concat, 0, p->tamanho + 6); 
 
-    mensagem_concat[0] = p->marcador;
-    mensagem_concat[1] = (p->tamanho << 2) | (p->sequencia >> 3);
-    mensagem_concat[2] = (p->sequencia << 5) | (p->tipo);
-    
-    memcpy(&mensagem_concat[3], p->dados, p->tamanho); 
-    
-    mensagem_concat[p->tamanho + 3] = p->CRC;
+
+unsigned char geraCRC(unsigned char *ptr, int count) {
+    unsigned char ptr_copia[count];  
+    memcpy(ptr_copia, ptr, count);  
+
+    unsigned char buffer = 0;  
+    int deslocamento = 0;
+    unsigned char crc = 0;
+
+    while (deslocamento < count-9) {
+        if (ptr_copia[deslocamento] == '0') {
+            deslocamento++;
+        } else {
+            char_to_binary(ptr_copia + deslocamento, 9, &buffer);
+
+            crc = buffer ^ POLINOMIO_DIVISOR;
+
+            for (int j = deslocamento; j < deslocamento + 9; j++) {
+                unsigned int mask = 1 << (8 - (j - deslocamento)); 
+                
+                ptr_copia[j] = (crc & mask) ? '1' : '0'; 
+            }
+
+            deslocamento ++; 
+        }
+    }
+
+    return crc;
 }
 
-unsigned char geraCRC(protocolo_t mensagem){
-    unsigned short buffer; // 2 bytes
-    unsigned char *tmp = malloc(sizeof(unsigned char)*68);
-    
-    empacota(&mensagem,tmp);
-
-    /*
-    for (int i = 0; i < mensagem.tamanho + 6; i++) {
-        //print_byte_as_binary(tmp[i],8);
-        printf("%02X ", tmp[i]);
-    }
-    printf("\n");
-    printf("TMP:%s\n",tmp);
-    */
-    
-
-
-
-    return 0b00000000; // temp
+int verificaCRC(unsigned char *mensagem){
+    unsigned char resto = geraCRC(mensagem,68);
+    printf("RESTO AQUI Ó %d\n",resto);
+    return resto;
 
 }
