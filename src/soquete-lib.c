@@ -59,10 +59,19 @@ void empacota(protocolo_t *mensagem, unsigned char *mensagem_concat) {
     mensagem_concat[2] = mensagem->sequencia;
     mensagem_concat[3] = mensagem->tipo;
 
-    // Dados: (tamanho) bytes de dados
     memcpy(&mensagem_concat[3], mensagem->dados, mensagem->tamanho);
+    mensagem_concat[67] = mensagem->CRC;
 }
 
+
+void imprimir_binario(unsigned char *mensagem, size_t tamanho) {
+    for (size_t i = 0; i < tamanho; i++) {
+        for (int j = 7; j >= 0; j--) {
+            printf("%d", (mensagem[i] >> j) & 1); // Extraí o bit de cada byte
+        }
+    }
+    printf("\n");  // Nova linha no final da impressão
+}
 
 /**
  * Cria uma mensagem do tipo protocolo_t e a inicializa com os parametros
@@ -74,21 +83,25 @@ void empacota(protocolo_t *mensagem, unsigned char *mensagem_concat) {
  * @param CRC 
  * @return Mensagem inicializada
  */
-protocolo_t criaMensagem(unsigned char tamanho,unsigned char sequencia,unsigned char tipo,char *dados,unsigned char CRC) {
-    protocolo_t mensagem; 
-    
+protocolo_t criaMensagem(unsigned char tamanho, unsigned char sequencia, unsigned char tipo, char *dados, unsigned char CRC) {
+    protocolo_t mensagem;
+
     mensagem.marcador = MARCADOR;
     mensagem.tamanho = 0b00111111 & tamanho;
     mensagem.sequencia = 0b00011111 & sequencia;
     mensagem.tipo = 0b00011111 & tipo;
     memcpy(mensagem.dados, dados, tamanho);
+    mensagem.CRC = 0b00000000;
 
-    unsigned char *mensagem_concat = malloc(sizeof (unsigned char) * 67);
-    empacota(&mensagem,mensagem_concat);
-    mensagem.CRC = geraCRC(mensagem_concat,sizeof(mensagem) - 1); 
+    size_t tamanho_mensagem = 68 * 8;  
+    unsigned char *mensagem_concat = malloc(sizeof(unsigned char) * 68);
 
+    empacota(&mensagem, mensagem_concat);
+    unsigned char crc = geraCRC(mensagem_concat, tamanho_mensagem);
+    mensagem.CRC = mensagem.CRC +  crc;
     return mensagem;
 }
+
 
 
 int recebeResposta(int soquete,unsigned char *buffer) {
@@ -138,14 +151,11 @@ void printMensagem(unsigned char *mensagem) {
     printf("\n");
 
     printf("Dados (ASCII): ");
-    for (int i = 3; i < getTamanho(mensagem); i++) {
-        printf("%c", mensagem[i]);
-    }
+        printf("%s", mensagem+3);
+    
     printf("\n");
 
-    printf("CRC:\n");
-    print_byte_as_binary(getCRC(mensagem), 8);
-    printf("\n");
+    printf("CRC: %d\n",getCRC(mensagem));
 
 }
 
@@ -167,6 +177,8 @@ void printMensagemEstruturada(protocolo_t mensagem) {
 
     printf("Dados (ASCII): %s",(char*)mensagem.dados);
     printf("\n");
+
+    printf("CRC: %d\n",mensagem.CRC);
 
 }
 
@@ -221,7 +233,7 @@ unsigned char *getDados(unsigned char *mensagem){
 }
 
 unsigned char getCRC(unsigned char *mensagem){
-    return mensagem[12];
+    return mensagem[67];
 }
 
 char *getErrors(unsigned char *errors) {
@@ -236,15 +248,15 @@ char *getErrors(unsigned char *errors) {
 }
 
 
-unsigned char geraCRC(unsigned char *ptr, int count) {
-    unsigned char ptr_copia[count];  
-    memcpy(ptr_copia, ptr, count);  
+unsigned char geraCRC(unsigned char *ptr, int tam) {
+    unsigned char ptr_copia[tam];  
+    memcpy(ptr_copia, ptr, tam);  
 
     unsigned char buffer = 0;  
     int deslocamento = 0;
     unsigned char crc = 0;
 
-    while (deslocamento <= count-9) {
+    while (deslocamento <= tam-9) {
         if (ptr_copia[deslocamento] == '0') {
             deslocamento++;
         } else {
@@ -266,9 +278,9 @@ unsigned char geraCRC(unsigned char *ptr, int count) {
 }
 
 int verificaCRC(unsigned char *mensagem){
-    printMensagem(mensagem);
-    unsigned char resto = geraCRC(mensagem,68);
-    printf("RESTO AQUI Ó %d\n",resto);
+    
+    unsigned char resto = geraCRC(mensagem,68*8);
+    //printf("RESTO AQUI Ó %d\n",resto);
     return resto;
 
 }

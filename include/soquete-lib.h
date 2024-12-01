@@ -70,6 +70,8 @@ void printMensagem(unsigned char *mensagem);
 
 void printMensagemEstruturada(protocolo_t mensagem);
 
+void printMensagemEstruturadaBinario(protocolo_t mensagem);
+
 unsigned char getMarcador(unsigned char *mensagem);
 
 unsigned char getTamanho(unsigned char *mensagem);
@@ -84,7 +86,7 @@ unsigned char getCRC(unsigned char *mensagem);
 
 char *getErrors(unsigned char *errors);
 
-unsigned char geraCRC(unsigned char *ptr, int count);
+unsigned char geraCRC(unsigned char *ptr, int tam);
 
 int verificaCRC(unsigned char *mensagemRecebida);
 

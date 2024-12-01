@@ -57,6 +57,7 @@ int main() {
             printf("Recebeu uma mensagem:\n");
             printMensagem(buffer);
             #endif
+            printf("VERIFICA CRC: %d\n",verificaCRC(buffer));
 
             //Coleta endereço do cliente
             extraiMacFonte(buffer, macFonte);
