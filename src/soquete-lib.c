@@ -103,8 +103,7 @@ protocolo_t criaMensagem(unsigned char tamanho, unsigned char sequencia, unsigne
 }
 
 
-
-int recebeResposta(int soquete,unsigned char *buffer) {
+int recebeResposta(int soquete,unsigned char *buffer, protocolo_t ultima_mensagem, struct sockaddr_ll endereco) {
 
     struct sockaddr_ll addr;
     socklen_t addr_len = sizeof(addr);
@@ -119,6 +118,13 @@ int recebeResposta(int soquete,unsigned char *buffer) {
     if(buffer[0] != 0b01111110)
         return 0;
 
+    // reenvia a ultima mensagem enviada
+    if(getTipo(buffer) == NACK) {
+        printf("enviou nack\n");
+        while(sendto(soquete, &ultima_mensagem, sizeof(ultima_mensagem), 0,(struct sockaddr*)&endereco, sizeof(endereco)) == -1) {}
+        return 0;
+    }
+
     return 1;   
 }
 
@@ -127,8 +133,6 @@ void print_byte_as_binary(unsigned char byte, int bits) {
         printf("%d", (byte >> i) & 1);
     }
 }
-
-
 
 void printMensagem(unsigned char *mensagem) {
     printf("Marcador: ");

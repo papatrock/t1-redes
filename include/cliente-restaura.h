@@ -6,4 +6,4 @@
 
 int get_next_file_version(char* path, char **path_new_file);
 
-void handle_restaura(char* nome_arq, struct sockaddr_ll endereco, int soquete, unsigned char *bufferResposta);
+void handle_restaura(char* nome_arq, struct sockaddr_ll endereco, int soquete, unsigned char *sequencia, unsigned char *bufferResposta);

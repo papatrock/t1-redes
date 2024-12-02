@@ -30,7 +30,7 @@ void handle_backup(unsigned char* buffer, int soquete, struct sockaddr_ll path_a
             printf("Resposta enviada com sucesso, aguardando tamanho\n");
         sequencia = sequencia + 1;
 
-        recebeResposta(soquete,buffer);
+        recebeResposta(soquete,buffer, resposta, path_addr);
         //TODO verificar se cabe em disco
         #ifdef _DEBUG_
         printf("recebeu dados:\n");
@@ -50,7 +50,7 @@ void handle_backup(unsigned char* buffer, int soquete, struct sockaddr_ll path_a
         //RECEBENDO DADOS  
         while (getTipo(buffer) != FIM_TRANSMISSAO_DADOS){
 
-            while(!recebeResposta(soquete,buffer)){}
+            while(!recebeResposta(soquete,buffer, resposta, path_addr)){}
             //dados
             if(getTipo(buffer) == DADOS){
                 #ifdef _DEBUG_ 

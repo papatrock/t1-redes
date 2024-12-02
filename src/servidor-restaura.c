@@ -52,7 +52,7 @@ void handle_restaura(unsigned char* buffer, int soquete, struct sockaddr_ll path
     else
         printf("Resposta enviada com sucesso\n");
 
-    while(!recebeResposta(soquete, buffer)) {}
+    while(!recebeResposta(soquete, buffer, resposta, path_addr)) {}
 
     resposta = criaMensagem(0,0,DADOS,"",0);
     char bufferArquivo[63]; //Buffer de leitura de arquivo
@@ -81,7 +81,7 @@ void handle_restaura(unsigned char* buffer, int soquete, struct sockaddr_ll path
         else
             printf("Resposta enviada com sucesso\n");
         //Aguarda resposta
-        while (!recebeResposta(soquete,buffer)){}
+        while (!recebeResposta(soquete,buffer, resposta, path_addr)){}
         #ifdef _DEBUG_
         printf("\nPacote recebido:\n");
         printMensagem(buffer);
@@ -96,7 +96,7 @@ void handle_restaura(unsigned char* buffer, int soquete, struct sockaddr_ll path
                 printf("Erro ao enviar resposta\n");
             else
                 printf("Resposta enviada com sucesso\n");
-            while (!recebeResposta(soquete,buffer)){}
+            while (!recebeResposta(soquete,buffer, resposta, path_addr)){}
         }
 
         //tratar outros erros aqui

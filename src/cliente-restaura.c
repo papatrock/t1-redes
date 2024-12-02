@@ -26,10 +26,10 @@ int get_next_file_version(char* path, char **path_new_file) {
     return 0;
 }
 
-void handle_restaura(char* nome_arq, struct sockaddr_ll endereco, int soquete, unsigned char *bufferResposta) {
+void handle_restaura(char* nome_arq, struct sockaddr_ll endereco, int soquete, unsigned char *sequencia, unsigned char *bufferResposta) {
     // envia nome do arquivo
-    protocolo_t mensagem = criaMensagem(strlen(nome_arq),0,RESTAURA,nome_arq,0);
-    if(sendto(soquete, &mensagem, sizeof(mensagem), 0 ,(struct sockaddr*)&endereco, sizeof(endereco)) == -1) {
+    protocolo_t mensagem = criaMensagem(strlen(nome_arq),(*sequencia),RESTAURA,nome_arq,0);
+    if(sendto(soquete, &mensagem, sizeof(mensagem), 0,(struct sockaddr*)&endereco, sizeof(endereco)) == -1) {
         printf("erro ao enviar mensagem\n");
         return;
     }
@@ -39,7 +39,7 @@ void handle_restaura(char* nome_arq, struct sockaddr_ll endereco, int soquete, u
     #endif
 
     //TODO implementar timout
-    while (!recebeResposta(soquete, bufferResposta)){}
+    while (!recebeResposta(soquete, bufferResposta, mensagem, endereco)){}
 
     #ifdef _DEBUG
     printf("Resposta recebida:\n");
@@ -126,7 +126,8 @@ void handle_restaura(char* nome_arq, struct sockaddr_ll endereco, int soquete, u
     }
 
     // envia OK para o servidor
-    mensagem = criaMensagem(0, 0/* enviar sequencia */, OK, "", 0);
+    (*sequencia)++;
+    mensagem = criaMensagem(0, (*sequencia), OK, "", 0);
     if(sendto(soquete, &mensagem, sizeof(mensagem), 0 ,(struct sockaddr*)&endereco, sizeof(endereco)) == -1) {
         printf("erro ao enviar mensagem\n");
         return;
@@ -134,7 +135,7 @@ void handle_restaura(char* nome_arq, struct sockaddr_ll endereco, int soquete, u
 
     // começa a receber dados do arquivo
     while (getTipo(bufferResposta) != FIM_TRANSMISSAO_DADOS){
-        while(!recebeResposta(soquete,bufferResposta)){}
+        while(!recebeResposta(soquete, bufferResposta, mensagem, endereco)){}
         //dados
         if(getTipo(bufferResposta) == DADOS){
             #ifdef _DEBUG_ 
@@ -147,10 +148,9 @@ void handle_restaura(char* nome_arq, struct sockaddr_ll endereco, int soquete, u
             memset(dados, 0, sizeof(dados)); // limpa o bufferResposta
             memcpy(dados, getDados(bufferResposta), getTamanho(bufferResposta));
             fwrite(dados,getTamanho(bufferResposta),1,arq);
-            mensagem = criaMensagem(0,0,ACK,"",0);
+            (*sequencia)++;
+            mensagem = criaMensagem(0,(*sequencia),ACK,"",0);
             sendto(soquete, &mensagem, sizeof(mensagem), 0 ,(struct sockaddr*)&endereco, sizeof(endereco));
-
-            // sequencia = sequencia + 1;
         }
     }
     printf("Terminou de receber dados\n\n");
