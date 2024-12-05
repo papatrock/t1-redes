@@ -7,6 +7,7 @@ void handle_restaura(unsigned char* buffer, int soquete, struct sockaddr_ll path
     printf("ENTROU NO RESTAURA\n");
     #endif
     protocolo_t resposta;
+    printf("recebeu mensagem de restaura, mensagem: %c\n", getSequencia(buffer));
 
     // Abre  pasta Backup e lê o  arquivo com o nome solicitado para receber dados
     char path[100];
@@ -18,7 +19,9 @@ void handle_restaura(unsigned char* buffer, int soquete, struct sockaddr_ll path
         // arquivo não existe
         printf("Arquivo não encontrado, enviando erro\n");
         //Manda um erro
-        resposta = criaMensagem(strlen(ARQUIVO_NAO_ENCONTRADO), 0, ERRO, ARQUIVO_NAO_ENCONTRADO, 0);
+        char error_message[2];
+        setErrorMessage(ARQUIVO_NAO_ENCONTRADO, error_message);
+        resposta = criaMensagem(strlen(error_message), 0, ERRO, error_message, 0);
         if(!enviaResposta(soquete, path_addr, resposta))
             printf("Erro ao enviar resposta\n");
         else
@@ -33,7 +36,9 @@ void handle_restaura(unsigned char* buffer, int soquete, struct sockaddr_ll path
         printf("Sem permissão de leitura, enviando erro\n");
 
         //Manda um erro
-        resposta = criaMensagem(strlen(SEM_PERMISSAO), 0, ERRO, SEM_PERMISSAO, 0);
+        char error_message[2];
+        setErrorMessage(ARQUIVO_NAO_ENCONTRADO, error_message);
+        resposta = criaMensagem(strlen(error_message), 0, ERRO, error_message, 0);
         if(!enviaResposta(soquete, path_addr, resposta))
             printf("Erro ao enviar resposta\n");
         else

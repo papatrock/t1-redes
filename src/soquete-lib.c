@@ -241,14 +241,26 @@ unsigned char getCRC(unsigned char *mensagem){
 }
 
 char *getErrors(unsigned char *errors) {
-    if(strcmp((char*)errors, SEM_PERMISSAO))
+    switch (errors[0])
+    {
+    case SEM_PERMISSAO:
         return "Sem permissão para acessar o arquivo";
-    else if(strcmp((char*)errors, SEM_ESPACO))
+        break;
+    case SEM_ESPACO:
         return "Sem espaço para armazenar o arquivo";
-    else if(strcmp((char*)errors, ARQUIVO_NAO_ENCONTRADO))
+        break;
+    case ARQUIVO_NAO_ENCONTRADO:
         return "Arquivo não encontrado";
-    else
+        break;
+    default:
         return "Um erro desconhecido ocorreu";
+        break;
+    }
+}
+
+void setErrorMessage(char error_code, char* error_message) {
+    error_message[0] = error_code;
+    error_message[1] = '\0';
 }
 
 
