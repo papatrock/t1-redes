@@ -260,7 +260,7 @@ unsigned char geraCRC(unsigned char *ptr, int tam) {
     int deslocamento = 0;
     unsigned char crc = 0;
 
-    while (deslocamento <= tam-9) {
+    while (deslocamento <= (int)strlen((char*)ptr_copia)-9) {
         if (ptr_copia[deslocamento] == '0') {
             deslocamento++;
         } else {
@@ -268,10 +268,10 @@ unsigned char geraCRC(unsigned char *ptr, int tam) {
 
             crc = buffer ^ POLINOMIO_DIVISOR;
 
-            for (int j = deslocamento; j < deslocamento + 9; j++) {
+            for (int j = deslocamento; j < 9; j++) {
                 unsigned int mask = 1 << (8 - (j - deslocamento)); 
                 
-                ptr_copia[j] = (crc & mask) ? '1' : '0'; 
+                ptr_copia[deslocamento + j] = (crc & mask) ? '1' : '0'; 
             }
 
             deslocamento ++; 
@@ -284,7 +284,13 @@ unsigned char geraCRC(unsigned char *ptr, int tam) {
 int verificaCRC(unsigned char *mensagem){
     
     unsigned char resto = geraCRC(mensagem,68*8);
-    //printf("RESTO AQUI Ó %d\n",resto);
-    return resto;
+    
+    #ifdef _DEBUG_
+    printf("RESTO DO CRC:%d\nSe 0 é porq deu certo",resto);
+    #endif
+    if(resto == 0)
+        return 1;
+
+    return 0;
 
 }
