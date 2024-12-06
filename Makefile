@@ -7,6 +7,9 @@ all: servidor cliente
 debug: CFLAGS += -D_DEBUG_ -g
 debug: all
 
+erro: CFLAGS += -D_SIMULA_ERRO_ -D_DEBUG_ -g
+erro: all
+
 servidor: $(servidorObjs)
 	gcc $(servidorObjs) $(CFLAGS) -o servidor
 

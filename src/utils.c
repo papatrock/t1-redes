@@ -17,3 +17,12 @@ void char_to_binary(unsigned char *string, int size, unsigned char *dest) {
         }
     }
 }
+
+/**
+ * Função que modifica um byte de uma mensagem, deve ser usada apenas para teste
+ * @param mensagem
+ */
+void gera_erro(unsigned char *mensagem){
+    mensagem[2] = 0b01010111;
+    mensagem[16] = 0b01010111;
+}

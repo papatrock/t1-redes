@@ -116,10 +116,11 @@ int recebeResposta(int soquete,unsigned char *buffer, protocolo_t ultima_mensage
     }
     if(buffer[0] != 0b01111110)
         return 0;
-
     // reenvia a ultima mensagem enviada
-    if(getTipo(buffer) == NACK) {
-        printf("enviou nack\n");
+    if(getTipo(buffer) == NACK ) {
+        #ifdef _DEBUG_
+        printf("recebeu um nack ou crc invalido\n");
+        #endif
         while(sendto(soquete, &ultima_mensagem, sizeof(ultima_mensagem), 0,(struct sockaddr*)&endereco, sizeof(endereco)) == -1) {}
         return 0;
     }
@@ -292,6 +293,12 @@ unsigned char geraCRC(unsigned char *ptr, int tam) {
     return crc;
 }
 
+/**
+ * Faz a divisão com o polinomio divisor e verifica se o resto é 0 ou não
+ *
+ * @param mensage
+ * @return 1 se resto == 0, 0 caso contrario
+ */
 int verificaCRC(unsigned char *mensagem){
     
     unsigned char resto = geraCRC(mensagem,68*8);

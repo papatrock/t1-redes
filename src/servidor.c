@@ -27,7 +27,7 @@ void extraiMacFonte(unsigned char *packet, unsigned char *src_mac) {
 
 int main() {
     unsigned char macFonte[6];
-    struct sockaddr_ll path_addr;
+    struct sockaddr_ll endereco;
     int ifindex = if_nametoindex(INTERFACE);
     unsigned char sequencia = 0;
     
@@ -37,6 +37,10 @@ int main() {
         fprintf(stderr, "Erro: Interface não encontrada\n");
         return -1;
     }
+
+    #ifdef _SIMULA_ERRO_
+        int qtd_erro = 1;      
+    #endif
 
     while (1) {
         unsigned char buffer[68];
@@ -57,16 +61,33 @@ int main() {
             printf("Recebeu uma mensagem:\n");
             printMensagem(buffer);
             #endif
-            printf("VERIFICA CRC: %d\n",verificaCRC(buffer));
 
             //Coleta endereço do cliente
             extraiMacFonte(buffer, macFonte);
-            inicializaSockaddr_ll(&path_addr, ifindex, macFonte);
+            inicializaSockaddr_ll(&endereco, ifindex, macFonte);
             #ifdef _DEBUG_
-            
             printf("MAC de origem: %02x:%02x:%02x:%02x:%02x:%02x\n", 
                    macFonte[0], macFonte[1], macFonte[2], macFonte[3], macFonte[4], macFonte[5]);
             #endif /* ifdef _DEBUG_ */
+
+            #ifdef _SIMULA_ERRO_
+            if(qtd_erro > 0){
+                gera_erro(buffer);
+                printf("gerou um erro\n");
+            }
+            qtd_erro--;
+            #endif
+
+            // Verifica CRC, se 0 envia um nack
+            if(!verificaCRC(buffer)){
+                #ifdef _DEBUG_
+                printf("entrou no CRC =! 0\n");
+                #endif
+                resposta = criaMensagem(0,sequencia,NACK,"");
+                enviaResposta(soquete,endereco,resposta);
+                continue;
+            }
+
             //verifica tipo
             unsigned char tipo = getTipo(buffer);
             
@@ -77,12 +98,12 @@ int main() {
                 
                 #endif
                 
-                handle_backup(buffer, soquete, path_addr,sequencia,resposta);
+                handle_backup(buffer, soquete, endereco,sequencia,resposta);
             }
             //-----RESTAURA------
             else if(tipo == RESTAURA) {
                 printf("chamou restaura\n");
-                handle_restaura(buffer, soquete, path_addr);
+                handle_restaura(buffer, soquete, endereco);
             }
         }
     }
