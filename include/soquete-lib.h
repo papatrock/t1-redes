@@ -60,7 +60,7 @@ int criaSocket(char *interface);
 
 void inicializaSockaddr_ll(struct sockaddr_ll *sockaddr, int ifindex, unsigned char *dest_mac);
 
-protocolo_t criaMensagem(unsigned char tamanho,unsigned char sequencia,unsigned char tipo,char *dados,unsigned char CRC);
+protocolo_t criaMensagem(unsigned char tamanho,unsigned char sequencia,unsigned char tipo,char *dados);
 
 int recebeResposta(int soquete,unsigned char *buffer, protocolo_t ultima_mensagem, struct sockaddr_ll endereco);
 

@@ -1,6 +1,6 @@
 #include "../include/cliente.h"
 
-void handle_backup(char *segundo_token,struct sockaddr_ll endereco,int soquete,unsigned char *sequencia, unsigned char CRC,unsigned char *bufferResposta)
+void handle_backup(char *segundo_token,struct sockaddr_ll endereco,int soquete,unsigned char *sequencia,unsigned char *bufferResposta)
 {       
     
     char path[100]; 
@@ -16,7 +16,7 @@ void handle_backup(char *segundo_token,struct sockaddr_ll endereco,int soquete,u
         sprintf(tamanho,"%d",tamanhoINT); //converte tamanho INT para um char*
         fseek(arq, 0L, SEEK_SET); // volta com o ponteiro pro inicio do arquivo
         // manda msg com o nome do arquivo e tamanho
-        protocolo_t mensagem = criaMensagem(strlen(segundo_token),(*sequencia),BACKUP,segundo_token,CRC);
+        protocolo_t mensagem = criaMensagem(strlen(segundo_token),(*sequencia),BACKUP,segundo_token);
         if(sendto(soquete,&mensagem,sizeof(mensagem),0,(struct sockaddr*)&endereco, sizeof(endereco)) ==-1)
             printf("erro ao enviar mensagem\n");
         else
@@ -47,7 +47,7 @@ void handle_backup(char *segundo_token,struct sockaddr_ll endereco,int soquete,u
 
                 // ENVIA TAMANHO
                 (*sequencia) = (*sequencia) + 1;
-                mensagem = criaMensagem(strlen(tamanho),(*sequencia),TAMANHO,tamanho,CRC);
+                mensagem = criaMensagem(strlen(tamanho),(*sequencia),TAMANHO,tamanho);
                 
                 if(sendto(soquete,&mensagem,sizeof(mensagem),0,(struct sockaddr*)&endereco, sizeof(endereco)) ==-1)
                 {
@@ -64,7 +64,7 @@ void handle_backup(char *segundo_token,struct sockaddr_ll endereco,int soquete,u
                 }
                 
                 (*sequencia) = (*sequencia) + 1;
-                mensagem = criaMensagem(0,(*sequencia),DADOS,"",CRC);
+                mensagem = criaMensagem(0,(*sequencia),DADOS,"");
                 char buffer[63]; //Buffer de leitura de arquivo
                 size_t bytesLidos;
                 //TODO implementar sequencia neste loop
@@ -104,7 +104,7 @@ void handle_backup(char *segundo_token,struct sockaddr_ll endereco,int soquete,u
                     //ACK
                 }
                 //Fim da transmissão de dados
-                mensagem = criaMensagem(0,0,FIM_TRANSMISSAO_DADOS,"Fim da transmissão de dados",0);
+                mensagem = criaMensagem(0,0,FIM_TRANSMISSAO_DADOS,"Fim da transmissão de dados");
                 sendto(soquete,&mensagem,sizeof(mensagem),0,(struct sockaddr*)&endereco, sizeof(endereco));
                 printf("\nBackup feito com sucesso\n\n");
                 break;

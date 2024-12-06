@@ -12,7 +12,7 @@ void handle_backup(unsigned char* buffer, int soquete, struct sockaddr_ll path_a
     {
         printf("erro ao abrir o arquivo, enviando nack\n");
         //TODO troca nack para código de erro
-        resposta = criaMensagem(strlen("Erro ao abrir arquivo"),sequencia,NACK,"Erro ao abrir arquivo",0);
+        resposta = criaMensagem(strlen("Erro ao abrir arquivo"),sequencia,NACK,"Erro ao abrir arquivo");
         if(!enviaResposta(soquete,path_addr,resposta))
             printf("Erro ao enviar resposta\n");
         else
@@ -23,7 +23,7 @@ void handle_backup(unsigned char* buffer, int soquete, struct sockaddr_ll path_a
         printf("Abriu arquivo\n"); 
         #endif /* ifdef  */
         //Manda um ok e aguarda o tamanho
-        resposta = criaMensagem(0,0,OK,"Ok!",0);
+        resposta = criaMensagem(0,0,OK,"Ok!");
         if(!enviaResposta(soquete,path_addr,resposta))
                 printf("Erro ao enviar resposta\n");
         else
@@ -38,7 +38,7 @@ void handle_backup(unsigned char* buffer, int soquete, struct sockaddr_ll path_a
         #endif
         // SE COUBER:
         
-        resposta = criaMensagem(3,sequencia,OK,"Ok!",0);
+        resposta = criaMensagem(3,sequencia,OK,"Ok!");
         
         if(!enviaResposta(soquete,path_addr,resposta))
             printf("Erro ao enviar resposta\n");
@@ -63,7 +63,7 @@ void handle_backup(unsigned char* buffer, int soquete, struct sockaddr_ll path_a
                 memset(dados, 0, sizeof(dados)); // limpa o buffer
                 memcpy(dados, getDados(buffer), getTamanho(buffer));
                 fwrite(dados,getTamanho(buffer),1,arq);
-                resposta = criaMensagem(0,sequencia,ACK,"",0);
+                resposta = criaMensagem(0,sequencia,ACK,"");
                 enviaResposta(soquete,path_addr,resposta);
                 sequencia = sequencia + 1;
             }

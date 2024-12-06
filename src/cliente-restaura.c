@@ -28,7 +28,7 @@ int get_next_file_version(char* path, char **path_new_file) {
 
 void handle_restaura(char* nome_arq, struct sockaddr_ll endereco, int soquete, unsigned char *sequencia, unsigned char *bufferResposta) {
     // envia nome do arquivo
-    protocolo_t mensagem = criaMensagem(strlen(nome_arq),(*sequencia),RESTAURA,nome_arq,0);
+    protocolo_t mensagem = criaMensagem(strlen(nome_arq),(*sequencia),RESTAURA,nome_arq);
     if(sendto(soquete, &mensagem, sizeof(mensagem), 0,(struct sockaddr*)&endereco, sizeof(endereco)) == -1) {
         printf("erro ao enviar mensagem\n");
         return;
@@ -127,7 +127,7 @@ void handle_restaura(char* nome_arq, struct sockaddr_ll endereco, int soquete, u
 
     // envia OK para o servidor
     (*sequencia)++;
-    mensagem = criaMensagem(0, (*sequencia), OK, "", 0);
+    mensagem = criaMensagem(0, (*sequencia), OK, "");
     if(sendto(soquete, &mensagem, sizeof(mensagem), 0 ,(struct sockaddr*)&endereco, sizeof(endereco)) == -1) {
         printf("erro ao enviar mensagem\n");
         return;
@@ -149,7 +149,7 @@ void handle_restaura(char* nome_arq, struct sockaddr_ll endereco, int soquete, u
             memcpy(dados, getDados(bufferResposta), getTamanho(bufferResposta));
             fwrite(dados,getTamanho(bufferResposta),1,arq);
             (*sequencia)++;
-            mensagem = criaMensagem(0,(*sequencia),ACK,"",0);
+            mensagem = criaMensagem(0,(*sequencia),ACK,"");
             sendto(soquete, &mensagem, sizeof(mensagem), 0 ,(struct sockaddr*)&endereco, sizeof(endereco));
         }
     }

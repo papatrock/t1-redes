@@ -8,8 +8,8 @@ void menu(){
 
 int main(int argc, char *argv[]){
     
-    unsigned char sequencia,CRC;
-    sequencia = CRC = 0;
+    unsigned char sequencia;
+    sequencia = 0;
 
     int soquete = criaSocket(INTERFACE); 
     int ifindex = if_nametoindex(INTERFACE);
@@ -46,7 +46,7 @@ int main(int argc, char *argv[]){
     
         // Switch de opções do cliente
         if(strcmp(primeiro_token,"backup") == 0){
-            handle_backup(segundo_token, endereco, soquete, &sequencia, CRC, bufferResposta);
+            handle_backup(segundo_token, endereco, soquete, &sequencia, bufferResposta);
         }
         else if(strcmp(primeiro_token, "restaura") == 0){
             printf("Restaura\n");

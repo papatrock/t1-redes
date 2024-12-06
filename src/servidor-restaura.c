@@ -21,7 +21,7 @@ void handle_restaura(unsigned char* buffer, int soquete, struct sockaddr_ll path
         //Manda um erro
         char error_message[2];
         setErrorMessage(ARQUIVO_NAO_ENCONTRADO, error_message);
-        resposta = criaMensagem(strlen(error_message), 0, ERRO, error_message, 0);
+        resposta = criaMensagem(strlen(error_message), 0, ERRO, error_message);
         if(!enviaResposta(soquete, path_addr, resposta))
             printf("Erro ao enviar resposta\n");
         else
@@ -38,7 +38,7 @@ void handle_restaura(unsigned char* buffer, int soquete, struct sockaddr_ll path
         //Manda um erro
         char error_message[2];
         setErrorMessage(ARQUIVO_NAO_ENCONTRADO, error_message);
-        resposta = criaMensagem(strlen(error_message), 0, ERRO, error_message, 0);
+        resposta = criaMensagem(strlen(error_message), 0, ERRO, error_message);
         if(!enviaResposta(soquete, path_addr, resposta))
             printf("Erro ao enviar resposta\n");
         else
@@ -51,7 +51,7 @@ void handle_restaura(unsigned char* buffer, int soquete, struct sockaddr_ll path
 
     char msg[15];
     sprintf(msg, "%ld", size);
-    resposta = criaMensagem(strlen(msg), 0, OK_TAM, msg, 0);
+    resposta = criaMensagem(strlen(msg), 0, OK_TAM, msg);
     if(!enviaResposta(soquete, path_addr, resposta))
         printf("Erro ao enviar resposta\n");
     else
@@ -59,7 +59,7 @@ void handle_restaura(unsigned char* buffer, int soquete, struct sockaddr_ll path
 
     while(!recebeResposta(soquete, buffer, resposta, path_addr)) {}
 
-    resposta = criaMensagem(0,0,DADOS,"",0);
+    resposta = criaMensagem(0,0,DADOS,"");
     char bufferArquivo[63]; //Buffer de leitura de arquivo
     size_t bytesLidos;
     FILE *arq = fopen(path, "r");
@@ -111,7 +111,7 @@ void handle_restaura(unsigned char* buffer, int soquete, struct sockaddr_ll path
         //ACK
     }
     //Fim da transmissão de dados
-    resposta = criaMensagem(0,0,FIM_TRANSMISSAO_DADOS,"Fim da transmissão de dados",0);
+    resposta = criaMensagem(0,0,FIM_TRANSMISSAO_DADOS,"Fim da transmissão de dados");
     if(!enviaResposta(soquete, path_addr, resposta))
         printf("Erro ao enviar resposta\n");
     else

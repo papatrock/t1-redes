@@ -80,10 +80,9 @@ void imprimir_binario(unsigned char *mensagem, size_t tamanho) {
  * @param sequencia
  * @param tipo
  * @param dados
- * @param CRC 
  * @return Mensagem inicializada
  */
-protocolo_t criaMensagem(unsigned char tamanho, unsigned char sequencia, unsigned char tipo, char *dados, unsigned char CRC) {
+protocolo_t criaMensagem(unsigned char tamanho, unsigned char sequencia, unsigned char tipo, char *dados) {
     protocolo_t mensagem;
 
     mensagem.marcador = MARCADOR;
