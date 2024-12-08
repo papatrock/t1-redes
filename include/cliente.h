@@ -5,3 +5,5 @@
 void menu();
 
 void handle_backup(char *segundo_token,struct sockaddr_ll endereco,int soquete,unsigned char *sequencia,unsigned char *bufferResposta);
+
+void handle_verifica(char* nome_arq, struct sockaddr_ll endereco, int soquete, unsigned char *sequencia, unsigned char *bufferResposta);

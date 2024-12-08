@@ -115,21 +115,28 @@ int main() {
 // ----------------------------- MENSAGEM VALIDA ----------------------------------------
             //verifica tipo
             unsigned char tipo = getTipo(buffer);
-            
-            //-----BACKUP------
-            if(tipo == BACKUP){
+            switch (tipo)
+            {
+            case BACKUP:
                 #ifdef _DEBUG_ 
                 printf("ENTROU NO BACKUP\n");
                 
                 #endif
                 
                 handle_backup(buffer, soquete, endereco,sequencia,resposta);
-            }
-            //-----RESTAURA------
-            else if(tipo == RESTAURA) {
+                break;
+            case RESTAURA:
                 printf("chamou restaura\n");
                 handle_restaura(buffer, soquete, endereco);
+            
+            case VERIFICA:
+                printf("chamou verifica\n");
+                handle_verifica(buffer, soquete, endereco,sequencia,resposta);
+                break;
+
+                default:
             }
+
         }
 
         // desativa o timeout

@@ -41,3 +41,38 @@ void print_byte_as_binary(unsigned char byte, int bits) {
         printf("%d", (byte >> i) & 1);
     }
 }
+
+char *checksum(const char *nome_arquivo) {
+    char comando[256];
+    FILE *fp;
+    char *resultado = malloc(33); // MD5 tem 32 caracteres + 1 para o terminador nulo
+
+    if (resultado == NULL) {
+        perror("Erro ao alocar memória para o resultado");
+        return NULL;
+    }
+
+    // Monta o comando a ser executado
+    snprintf(comando, sizeof(comando), "md5sum %s", nome_arquivo);
+
+    // Executa o comando
+    fp = popen(comando, "r");
+    if (fp == NULL) {
+        //perror("Erro ao executar md5sum");
+        free(resultado);
+        return NULL;
+    }
+
+    // Lê o hash (32 caracteres)
+    if (fscanf(fp, "%32s", resultado) != 1) {
+        fprintf(stderr, "Erro ao ler o hash MD5\n");
+        free(resultado);
+        pclose(fp);
+        return NULL;
+    }
+
+    // Fecha o processo
+    pclose(fp);
+
+    return resultado;
+}

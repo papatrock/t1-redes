@@ -54,6 +54,7 @@ int main(int argc, char *argv[]){
         }
         else if (strcmp(primeiro_token,"verifica") == 0){
             printf("Verifica\n");
+            handle_verifica(segundo_token, endereco, soquete, &sequencia, bufferResposta);
         }
         else{
             printf("opção invalida, tente novamente:\n");

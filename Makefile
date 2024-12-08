@@ -1,6 +1,6 @@
 CFLAGS = -Wall
-clienteObjs = cliente.o soquete-lib.o utils.o cliente-restaura.o cliente-backup.o
-servidorObjs = servidor.o soquete-lib.o utils.o servidor-restaura.o servidor-backup.o
+clienteObjs = cliente.o soquete-lib.o utils.o cliente-restaura.o cliente-backup.o cliente-verifica.o
+servidorObjs = servidor.o soquete-lib.o utils.o servidor-restaura.o servidor-backup.o servidor-verifica.o
 
 all: servidor cliente
 
@@ -21,6 +21,10 @@ servidor-restaura.o: src/servidor-restaura.c include/servidor-restaura.h include
 
 servidor-backup.o: src/servidor-backup.c include/servidor.h include/soquete-lib.h include/utils.h
 	gcc $(CFLAGS) -c src/servidor-backup.c -o servidor-backup.o
+
+servidor-verifica.o: src/servidor-verifica.c include/servidor.h include/soquete-lib.h include/utils.h
+	gcc $(CFLAGS) -c src/servidor-verifica.c -o servidor-verifica.o
+
 soquete-lib.o: src/soquete-lib.c include/soquete-lib.h
 	gcc $(CFLAGS) -c src/soquete-lib.c -o soquete-lib.o
 
@@ -38,6 +42,9 @@ cliente-restaura.o: src/cliente-restaura.c include/cliente-restaura.h include/so
 
 cliente-backup.o: src/cliente-backup.c include/cliente.h include/soquete-lib.h include/utils.h
 	gcc $(CFLAGS) -c src/cliente-backup.c -o cliente-backup.o
+
+cliente-verifica.o: src/cliente-verifica.c include/cliente.h include/soquete-lib.h include/utils.h
+	gcc $(CFLAGS) -c src/cliente-verifica.c -o cliente-verifica.o
 
 clean:
 	rm -f *~ *.o
