@@ -78,6 +78,7 @@ int main() {
             qtd_erro--;
             #endif
 
+
             // Verifica CRC, se 0 envia um nack
             if(!verificaCRC(buffer)){
                 #ifdef _DEBUG_
@@ -88,6 +89,7 @@ int main() {
                 continue;
             }
 
+// ----------------------------- MENSAGEM VALIDA ----------------------------------------
             //verifica tipo
             unsigned char tipo = getTipo(buffer);
             

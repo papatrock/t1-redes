@@ -88,10 +88,14 @@ char *getErrors(unsigned char *errors);
 
 void setErrorMessage(char error_code, char* error_message);
 
-unsigned char geraCRC(unsigned char *ptr, int tam);
+unsigned char geraCRC(unsigned char *ptr);
 
 int verificaCRC(unsigned char *mensagemRecebida);
 
 void printBits(unsigned char byte);
+
+unsigned char *empacota(unsigned char *mensagem);
+
+unsigned char *empacotaStruct(protocolo_t *mensagem);
 
 #endif

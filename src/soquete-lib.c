@@ -47,23 +47,6 @@ void inicializaSockaddr_ll(struct sockaddr_ll *sockaddr, int ifindex, unsigned c
     }
 }
 
-/*
-    Concatena struct mensagem em uma só string
-    para facilitar o xor com o polinomio
-*/
-void empacota(protocolo_t *mensagem, unsigned char *mensagem_concat) {
-    memset(mensagem_concat, 0, 67); 
-
-    mensagem_concat[0] = mensagem->marcador;
-    mensagem_concat[1] = mensagem->tamanho;
-    mensagem_concat[2] = mensagem->sequencia;
-    mensagem_concat[3] = mensagem->tipo;
-
-    memcpy(&mensagem_concat[3], mensagem->dados, mensagem->tamanho);
-    mensagem_concat[67] = mensagem->CRC;
-}
-
-
 void imprimir_binario(unsigned char *mensagem, size_t tamanho) {
     for (size_t i = 0; i < tamanho; i++) {
         for (int j = 7; j >= 0; j--) {
@@ -92,12 +75,20 @@ protocolo_t criaMensagem(unsigned char tamanho, unsigned char sequencia, unsigne
     memcpy(mensagem.dados, dados, tamanho);
     mensagem.CRC = 0b00000000;
 
-    size_t tamanho_mensagem = 68 * 8;  
-    unsigned char *mensagem_concat = malloc(sizeof(unsigned char) * 68);
+    unsigned char *mensagem_concat = calloc(68,sizeof(unsigned char) * 68);
+    if (!mensagem_concat) {
+        printf("Erro ao alocar memória\n");
+        exit(-1);
+    }
 
-    empacota(&mensagem, mensagem_concat);
-    unsigned char crc = geraCRC(mensagem_concat, tamanho_mensagem);
+    mensagem_concat = empacotaStruct(&mensagem);
+    unsigned char crc = geraCRC(mensagem_concat);
     mensagem.CRC = mensagem.CRC +  crc;
+    #ifdef _DEBUG_
+    printf("CRC calculado no criamsg: %u\n",mensagem.CRC);
+    #endif
+
+    free(mensagem_concat);
     return mensagem;
 }
 
@@ -117,11 +108,12 @@ int recebeResposta(int soquete,unsigned char *buffer, protocolo_t ultima_mensage
     if(buffer[0] != 0b01111110)
         return 0;
     // reenvia a ultima mensagem enviada
+
     if(getTipo(buffer) == NACK ) {
         #ifdef _DEBUG_
         printf("recebeu um nack ou crc invalido\n");
         #endif
-        while(sendto(soquete, &ultima_mensagem, sizeof(ultima_mensagem), 0,(struct sockaddr*)&endereco, sizeof(endereco)) == -1) {}
+        sendto(soquete, &ultima_mensagem, sizeof(ultima_mensagem), 0,(struct sockaddr*)&endereco, sizeof(endereco));
         return 0;
     }
 
@@ -219,16 +211,16 @@ unsigned char getMarcador(unsigned char *mensagem){
 }
 
 unsigned char getTamanho(unsigned char *mensagem){
-    return mensagem[1];
+    return (mensagem[1] & 0b00111111);
 }
 
 unsigned char getSequencia(unsigned char *mensagem){
-    return mensagem[2];
+    return mensagem[2] & 0b00011111;
 }
 
 unsigned char getTipo(unsigned char *mensagem)
 {
-    return mensagem[3];
+    return mensagem[3] & 0b00011111;
 }
 
 
@@ -264,24 +256,32 @@ void setErrorMessage(char error_code, char* error_message) {
 }
 
 
-unsigned char geraCRC(unsigned char *ptr, int tam) {
-    unsigned char ptr_copia[tam];  
+unsigned char geraCRC(unsigned char *ptr) {
+    #ifdef _DEBUG_
+    printf("\n--------------\ncalculo do crc em:\n%s\n",ptr);
+    #endif
+    int tam = (int)strlen((char*)ptr);
+    unsigned char *ptr_copia = malloc(tam);
+    if (!ptr_copia) {
+        printf("Erro ao alocar memória\n");
+        exit(-1);
+    }  
     memcpy(ptr_copia, ptr, tam);  
 
     unsigned char buffer = 0;  
     int deslocamento = 0;
     unsigned char crc = 0;
 
-    while (deslocamento <= (int)strlen((char*)ptr_copia)-9) {
+    while (deslocamento <= tam -9) {
         if (ptr_copia[deslocamento] == '0') {
             deslocamento++;
         } else {
+
             char_to_binary(ptr_copia + deslocamento, 9, &buffer);
 
             crc = buffer ^ POLINOMIO_DIVISOR;
-
-            for (int j = deslocamento; j < 9; j++) {
-                unsigned int mask = 1 << (8 - (j - deslocamento)); 
+            for (int j = 0; j < 9; j++) {
+                unsigned int mask = 1 << (8 - j); 
                 
                 ptr_copia[deslocamento + j] = (crc & mask) ? '1' : '0'; 
             }
@@ -289,9 +289,95 @@ unsigned char geraCRC(unsigned char *ptr, int tam) {
             deslocamento ++; 
         }
     }
-
+    char_to_binary(ptr_copia + deslocamento, 8, &crc);
+    #ifdef _DEBUG_
+    printf("crc = %u\n-----------fim do gera CRC----------\n",crc);
+    #endif
+    free(ptr_copia);
     return crc;
 }
+
+unsigned char *empacotaStruct(protocolo_t *mensagem) {
+    #ifdef _DEBUG_
+    printf("mensagem a ser empacotada:\n");
+    printMensagemEstruturada(*mensagem);
+    #endif
+    int tamanho_bits = 68 * 8;  
+    unsigned char *empacotado = malloc(tamanho_bits + 1);
+    if (!empacotado) {
+        printf("Erro ao alocar memória\n");
+        exit(-1);
+    }
+
+    memset(empacotado, 0, tamanho_bits + 1);
+
+    int pos = 0;
+
+    unsigned char campos[] = {mensagem->marcador, mensagem->tamanho, mensagem->sequencia, mensagem->tipo};
+    for (int i = 0; i < 4; i++) {
+        for (int bit = 7; bit >= 0; bit--) {
+            empacotado[pos++] = ((campos[i] >> bit) & 1) ? '1' : '0';
+        }
+    }
+
+    for (int i = 0; i < mensagem->tamanho; i++) {
+        for (int bit = 7; bit >= 0; bit--) {
+            empacotado[pos++] = ((mensagem->dados[i] >> bit) & 1) ? '1' : '0';
+        }
+    }
+
+    for (int bit = 7; bit >= 0; bit--) {
+        empacotado[pos++] = ((mensagem->CRC >> bit) & 1) ? '1' : '0';
+    }
+
+    empacotado[tamanho_bits] = '\0';
+    #ifdef _DEBUG_
+    if(mensagem->tipo == DADOS)
+        printf("É UM DADO SENDO EMPACOTADO NA STRUCT\n");
+    printf("empacota (struct)\n%s\n",empacotado);
+    #endif
+    return empacotado;
+}
+
+
+unsigned char *empacota(unsigned char *mensagem) {
+    int tamanho_bits = 68 * 8;  
+    unsigned char *empacotado = malloc(tamanho_bits + 1); 
+    if (!empacotado) {
+        printf("Erro ao alocar memória\n");
+        exit(-1);
+    }
+
+    memset(empacotado, 0, tamanho_bits + 1);
+
+    int pos = 0;
+    int tamanho = getTamanho(mensagem);
+    unsigned char *dados = getDados(mensagem);
+    unsigned char campos[] = {getMarcador(mensagem), getTamanho(mensagem), getSequencia(mensagem), getTipo(mensagem)};
+    for (int i = 0; i < 4; i++) {
+        for (int bit = 7; bit >= 0; bit--) {
+            empacotado[pos++] = ((campos[i] >> bit) & 1) ? '1' : '0';
+        }
+    }
+
+    for (int i = 0; i < tamanho; i++) {
+        for (int bit = 7; bit >= 0; bit--) {
+            empacotado[pos++] = ((dados[i] >> bit) & 1) ? '1' : '0';
+        }
+    }
+
+    for (int bit = 7; bit >= 0; bit--) {
+        empacotado[pos++] = ((getCRC(mensagem) >> bit) & 1) ? '1' : '0';
+    }
+
+    empacotado[tamanho_bits] = '\0';
+
+    #ifdef _DEBUG_
+    printf("empacota (mesagem)\n%s\n",empacotado);
+    #endif
+    return empacotado;
+}
+
 
 /**
  * Faz a divisão com o polinomio divisor e verifica se o resto é 0 ou não
@@ -300,15 +386,24 @@ unsigned char geraCRC(unsigned char *ptr, int tam) {
  * @return 1 se resto == 0, 0 caso contrario
  */
 int verificaCRC(unsigned char *mensagem){
-    
-    unsigned char resto = geraCRC(mensagem,68*8);
+
+    unsigned char *mensagem_concat = calloc(68,sizeof(unsigned char) * 68);
+    if (!mensagem_concat) {
+        printf("Erro ao alocar memória\n");
+        exit(-1);
+    } 
+
+    mensagem_concat = empacota(mensagem);
+    unsigned char resto = geraCRC(mensagem_concat);
     
     #ifdef _DEBUG_
-    printf("RESTO DO CRC:%d\nSe 0 é porq deu certo",resto);
+    printf("----------VERIFICA CRC----------------\nRESTO DO CRC:%d\nSe 0 é porq deu certo\n-----------FIM DO VERIFICA ----------------",resto);
     #endif
     if(resto == 0)
         return 1;
 
+    free(mensagem_concat);
     return 0;
 
 }
+

@@ -53,6 +53,7 @@ void handle_backup(unsigned char* buffer, int soquete, struct sockaddr_ll path_a
             while(!recebeResposta(soquete,buffer, resposta, path_addr)){}
             //dados
             if(getTipo(buffer) == DADOS){
+                printf("resultado do CRC: %u\n",verificaCRC(buffer));
                 #ifdef _DEBUG_ 
                 printf("Recebeu um pacote de dados:\n");
                 printMensagem(buffer);

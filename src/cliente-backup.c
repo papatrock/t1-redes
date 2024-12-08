@@ -15,7 +15,7 @@ void handle_backup(char *segundo_token,struct sockaddr_ll endereco,int soquete,u
         char tamanho[63];
         sprintf(tamanho,"%d",tamanhoINT); //converte tamanho INT para um char*
         fseek(arq, 0L, SEEK_SET); // volta com o ponteiro pro inicio do arquivo
-        // manda msg com o nome do arquivo e tamanho
+        // manda msg com o nome do arquivo
         protocolo_t mensagem = criaMensagem(strlen(segundo_token),(*sequencia),BACKUP,segundo_token);
         if(sendto(soquete,&mensagem,sizeof(mensagem),0,(struct sockaddr*)&endereco, sizeof(endereco)) ==-1)
             printf("erro ao enviar mensagem\n");
@@ -28,7 +28,9 @@ void handle_backup(char *segundo_token,struct sockaddr_ll endereco,int soquete,u
 
             #endif
             //TODO implementar timout (não lembro se precisava do lado do cliente ou não)
-            while (!recebeResposta(soquete,bufferResposta, mensagem, endereco)){}
+            while (!recebeResposta(soquete,bufferResposta, mensagem, endereco)){
+                
+            }
             
             #ifdef _DEBUG_
             printf("Resposta recebida:\n");
@@ -54,7 +56,6 @@ void handle_backup(char *segundo_token,struct sockaddr_ll endereco,int soquete,u
                     printf("erro ao enviar mensagem\n");
                     return;
                 }
-                printf("tamanho enviado, aguardando ok\n");
                 while (!recebeResposta(soquete,bufferResposta, mensagem, endereco)){}
 
                 //TODO tradar outras respostas
@@ -70,11 +71,12 @@ void handle_backup(char *segundo_token,struct sockaddr_ll endereco,int soquete,u
                 //TODO implementar sequencia neste loop
                 while ((bytesLidos = fread(buffer, 1, sizeof(buffer), arq)) > 0)
                 {
-                    memcpy(mensagem.dados, buffer, bytesLidos);
-                    mensagem.tamanho = bytesLidos;
+                    mensagem = criaMensagem(bytesLidos,*sequencia,DADOS,buffer);
+                    //memcpy(mensagem.dados, buffer, bytesLidos);
+                    //mensagem.tamanho = bytesLidos;
 
                     (*sequencia) = (*sequencia) + 1;
-                    mensagem.sequencia = (*sequencia);
+                    //mensagem.sequencia = (*sequencia);
                     #ifdef _DEBUG_
                     printf("\nMandando pacote:\n");
                     printMensagemEstruturada(mensagem);
