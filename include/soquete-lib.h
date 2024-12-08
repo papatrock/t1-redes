@@ -17,6 +17,7 @@
 #include <dirent.h>
 #include <sys/types.h>
 #include "../include/utils.h"
+#include <errno.h> // para erros de timeout
 
 
 

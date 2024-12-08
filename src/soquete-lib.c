@@ -1,9 +1,12 @@
 #include "../include/soquete-lib.h"
 #include <ctype.h>
+#include <sys/time.h>
+
 
 
 int criaSocket(char *interface)
 {
+
     int soquete = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
     
     if(soquete == -1)
@@ -90,13 +93,25 @@ int recebeResposta(int soquete,unsigned char *buffer, protocolo_t ultima_mensage
     struct sockaddr_ll addr;
     socklen_t addr_len = sizeof(addr);
          
+
+    // se da timeout bytes_recebidos == -1 e errno == EAGAIN errno == EWOULDBLOCK
     int bytes_recebidos = recvfrom(soquete, buffer, 68, 0, (struct sockaddr*)&addr, &addr_len);
      
     if (bytes_recebidos == -1) {
-        fprintf(stderr, "Erro ao receber dados\n");
-        free(buffer);
-        return 0;
+        if (errno == EAGAIN || errno == EWOULDBLOCK) {
+            // Timeout ocorreu
+            fprintf(stderr, "Timeout. Pedindo reenvio.\n");
+
+            // Envia uma mensagem solicitando retransmissão
+            sendto(soquete, &ultima_mensagem, sizeof(ultima_mensagem), 0,(struct sockaddr*)&endereco, sizeof(endereco));
+            return 0; // Aguarda nova tentativa
+        } else {
+            // Outro erro
+            fprintf(stderr, "Erro ao receber dados\n");
+            free(buffer);
+            return 0;
     }
+}
     if(buffer[0] != 0b01111110)
         return 0;
     // reenvia a ultima mensagem enviada

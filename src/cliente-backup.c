@@ -68,6 +68,7 @@ void handle_backup(char *segundo_token,struct sockaddr_ll endereco,int soquete,u
                 mensagem = criaMensagem(0,(*sequencia),DADOS,"");
                 char buffer[63]; //Buffer de leitura de arquivo
                 size_t bytesLidos;
+
                 //TODO implementar sequencia neste loop
                 while ((bytesLidos = fread(buffer, 1, sizeof(buffer), arq)) > 0)
                 {
@@ -81,7 +82,6 @@ void handle_backup(char *segundo_token,struct sockaddr_ll endereco,int soquete,u
                     printf("\nMandando pacote:\n");
                     printMensagemEstruturada(mensagem);
                     #endif
-                    
                     sendto(soquete,&mensagem,sizeof(mensagem),0,(struct sockaddr*)&endereco, sizeof(endereco));
                     //Aguarda resposta
                     while (!recebeResposta(soquete,bufferResposta, mensagem, endereco)){}
@@ -104,6 +104,7 @@ void handle_backup(char *segundo_token,struct sockaddr_ll endereco,int soquete,u
 
                     }
                     //ACK
+                    
                 }
                 //Fim da transmissão de dados
                 mensagem = criaMensagem(0,0,FIM_TRANSMISSAO_DADOS,"Fim da transmissão de dados");

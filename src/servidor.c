@@ -1,6 +1,11 @@
 #include "../include/servidor-restaura.h"
 #include "../include/servidor.h"
 #include "../include/utils.h"
+#include <sys/time.h>
+
+
+struct timeval timeout;
+struct timeval no_timeout = {0};
 
 /**
  * Envia uma mensagem para o mac fonte
@@ -26,6 +31,8 @@ void extraiMacFonte(unsigned char *packet, unsigned char *src_mac) {
 
 
 int main() {
+    timeout.tv_sec = 0;
+    timeout.tv_usec=500000;
     unsigned char macFonte[6];
     struct sockaddr_ll endereco;
     int ifindex = if_nametoindex(INTERFACE);
@@ -41,6 +48,8 @@ int main() {
     #ifdef _SIMULA_ERRO_
         int qtd_erro = 1;      
     #endif
+
+    int timeout_ativado = 0;
 
     while (1) {
         unsigned char buffer[68];
@@ -61,6 +70,20 @@ int main() {
             printf("Recebeu uma mensagem:\n");
             printMensagem(buffer);
             #endif
+
+            // ativa o to
+            if (!timeout_ativado) {
+                    timeout.tv_sec = 0;
+                    timeout.tv_usec = 500000; // 500ms
+
+                    if (setsockopt(soquete, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout)) < 0) {
+                        perror("Erro ao configurar timeout de recepção");
+                        return 1;
+                    }
+
+                    timeout_ativado = 1; 
+                    printf("Timeout ativado após a primeira mensagem válida.\n");
+            }
 
             //Coleta endereço do cliente
             extraiMacFonte(buffer, macFonte);
@@ -108,6 +131,14 @@ int main() {
                 handle_restaura(buffer, soquete, endereco);
             }
         }
+
+        // desativa o timeout
+        if (setsockopt(soquete, SOL_SOCKET, SO_RCVTIMEO, &no_timeout, sizeof(no_timeout)) < 0) {
+            perror("Erro ao desativar timeout");
+            return 1;
+        }
+        timeout_ativado = 0; // Marca que o timeout foi desativado
+        printf("Timeout desativado.\n");
     }
 
     close(soquete);
