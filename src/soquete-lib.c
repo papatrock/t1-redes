@@ -47,14 +47,6 @@ void inicializaSockaddr_ll(struct sockaddr_ll *sockaddr, int ifindex, unsigned c
     }
 }
 
-void imprimir_binario(unsigned char *mensagem, size_t tamanho) {
-    for (size_t i = 0; i < tamanho; i++) {
-        for (int j = 7; j >= 0; j--) {
-            printf("%d", (mensagem[i] >> j) & 1); // Extraí o bit de cada byte
-        }
-    }
-    printf("\n");  // Nova linha no final da impressão
-}
 
 /**
  * Cria uma mensagem do tipo protocolo_t e a inicializa com os parametros
@@ -109,7 +101,7 @@ int recebeResposta(int soquete,unsigned char *buffer, protocolo_t ultima_mensage
         return 0;
     // reenvia a ultima mensagem enviada
 
-    if(getTipo(buffer) == NACK ) {
+    if(getTipo(buffer) == NACK || !verificaCRC(buffer)) {
         #ifdef _DEBUG_
         printf("recebeu um nack ou crc invalido\n");
         #endif
@@ -120,11 +112,6 @@ int recebeResposta(int soquete,unsigned char *buffer, protocolo_t ultima_mensage
     return 1;   
 }
 
-void print_byte_as_binary(unsigned char byte, int bits) {
-    for (int i = bits - 1; i >= 0; i--) {
-        printf("%d", (byte >> i) & 1);
-    }
-}
 
 void printMensagem(unsigned char *mensagem) {
     printf("Marcador: ");

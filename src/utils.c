@@ -26,3 +26,18 @@ void gera_erro(unsigned char *mensagem){
     mensagem[2] = 0b01010111;
     mensagem[16] = 0b01010111;
 }
+
+void imprimir_binario(unsigned char *mensagem, size_t tamanho) {
+    for (size_t i = 0; i < tamanho; i++) {
+        for (int j = 7; j >= 0; j--) {
+            printf("%d", (mensagem[i] >> j) & 1); 
+        }
+    }
+    printf("\n"); 
+}
+
+void print_byte_as_binary(unsigned char byte, int bits) {
+    for (int i = bits - 1; i >= 0; i--) {
+        printf("%d", (byte >> i) & 1);
+    }
+}

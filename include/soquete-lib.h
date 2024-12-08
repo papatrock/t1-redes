@@ -64,8 +64,6 @@ protocolo_t criaMensagem(unsigned char tamanho,unsigned char sequencia,unsigned 
 
 int recebeResposta(int soquete,unsigned char *buffer, protocolo_t ultima_mensagem, struct sockaddr_ll endereco);
 
-void print_byte_as_binary(unsigned char byte, int bits);
-
 void printMensagem(unsigned char *mensagem);
 
 void printMensagemEstruturada(protocolo_t mensagem);
