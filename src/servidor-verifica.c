@@ -2,15 +2,12 @@
 
 void handle_verifica(unsigned char* mensagem, int soquete, struct sockaddr_ll path_addr,unsigned char sequencia){
     char *dados = getDados(mensagem);
-    printf("DADDDOOOOS:%s\n",dados);
-    char *path = calloc(7 + sizeof(dados),sizeof(char));
+    char *path = calloc(7 + strlen(dados),sizeof(char));
     strcpy(path,"Backup/");
     strcat(path,dados);
-    printf("PATHHHHH:%s\n",path);
     protocolo_t resposta; 
 
     char *checksum_result = checksum(path);
-    printf("checksum servidor: %s\n",checksum_result);
 
 
     if(!checksum_result){
@@ -25,10 +22,8 @@ void handle_verifica(unsigned char* mensagem, int soquete, struct sockaddr_ll pa
     }
 
     resposta = criaMensagem(strlen(checksum_result),sequencia,OK_CHECKSUM,checksum_result);
-    printMensagemEstruturada(resposta);
     if(!enviaResposta(soquete,path_addr,resposta))
                 printf("Erro ao enviar resposta\n");
-    else
-        printf("checksum enviado\n");
+   
     free(path);
 }

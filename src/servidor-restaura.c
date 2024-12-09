@@ -2,17 +2,16 @@
 #include "../include/utils.h"
 #include "../include/servidor.h"
 
-void handle_restaura(unsigned char* buffer, int soquete, struct sockaddr_ll path_addr) {
+void handle_restaura(unsigned char* buffer, int soquete, struct sockaddr_ll path_addr,char *sequencia) {
     #ifdef _DEBUG_ 
     printf("ENTROU NO RESTAURA\n");
     #endif
     protocolo_t resposta;
-    printf("recebeu mensagem de restaura, mensagem: %c\n", getSequencia(buffer));
 
     // Abre  pasta Backup e lê o  arquivo com o nome solicitado para receber dados
     char path[100];
     strcpy(path, "Backup/");
-    strcat(path, (char*)getDados(buffer));
+    strcat(path, getDados(buffer));
 
     // valida se o arquivo existe
     if(access(path, F_OK) == -1) {
@@ -59,10 +58,9 @@ void handle_restaura(unsigned char* buffer, int soquete, struct sockaddr_ll path
 
     while(!recebeResposta(soquete, buffer, resposta, path_addr)) {}
 
-    resposta = criaMensagem(0,0,DADOS,"");
     char bufferArquivo[63]; //Buffer de leitura de arquivo
     size_t bytesLidos;
-    FILE *arq = fopen(path, "r");
+    FILE *arq = fopen(path, "rb");
     if(!arq) {
         printf("Erro ao abrir arquivo\n");
         // Handle file open error
@@ -71,11 +69,9 @@ void handle_restaura(unsigned char* buffer, int soquete, struct sockaddr_ll path
     //TODO implementar 0 neste loop
     while ((bytesLidos = fread(bufferArquivo, 1, sizeof(bufferArquivo), arq)) > 0)
     {
-        memcpy(resposta.dados, bufferArquivo, bytesLidos);
-        resposta.tamanho = bytesLidos;
+        resposta = criaMensagem(bytesLidos,*sequencia,DADOS,bufferArquivo);
 
-        // sequencia = sequencia + 1;
-        // resposta.sequencia = sequencia;
+        (*sequencia) = (*sequencia) + 1;
         #ifdef _DEBUG_
         printf("\nMandando pacote:\n");
         printMensagemEstruturada(resposta);
@@ -83,8 +79,7 @@ void handle_restaura(unsigned char* buffer, int soquete, struct sockaddr_ll path
         
         if(!enviaResposta(soquete, path_addr, resposta))
             printf("Erro ao enviar resposta\n");
-        else
-            printf("Resposta enviada com sucesso\n");
+
         //Aguarda resposta
         while (!recebeResposta(soquete,buffer, resposta, path_addr)){}
         #ifdef _DEBUG_

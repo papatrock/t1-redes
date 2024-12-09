@@ -63,15 +63,12 @@ void inicializaSockaddr_ll(struct sockaddr_ll *sockaddr, int ifindex, unsigned c
 protocolo_t criaMensagem(unsigned char tamanho, unsigned char sequencia, unsigned char tipo, char *dados) {
     protocolo_t mensagem;
     
-    printf("dados dentro do cria:%s\n",dados);
     mensagem.marcador = MARCADOR;
     mensagem.tamanho = 0b00111111 & tamanho;
     mensagem.sequencia = 0b00011111 & sequencia;
     mensagem.tipo = 0b00011111 & tipo;
-    printf("DEBUG NO CRIA:\ndados:%s,tamanho:%d\n",dados,tamanho);
     memset(mensagem.dados, 0, sizeof(mensagem.dados));
     memcpy(mensagem.dados, dados, tamanho);
-    printf("mensagem.dados dentro do cria:%s\n",mensagem.dados);
     mensagem.CRC = 0b00000000;
 
     unsigned char *mensagem_concat = calloc(68,sizeof(unsigned char) * 68);
@@ -102,7 +99,7 @@ int recebeResposta(int soquete,unsigned char *buffer, protocolo_t ultima_mensage
     int bytes_recebidos = recvfrom(soquete, buffer, 68, 0, (struct sockaddr*)&addr, &addr_len);
      
     if (bytes_recebidos == -1) {
-        if (errno == EAGAIN || errno == EWOULDBLOCK) {
+        if ((errno == EAGAIN || errno == EWOULDBLOCK)) {
             // Timeout ocorreu
             fprintf(stderr, "Timeout. Pedindo reenvio.\n");
 

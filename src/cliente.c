@@ -35,15 +35,12 @@ int main(int argc, char *argv[]){
         // Separar a entrada em dois tokens usando espaço como delimitador
         char entrada_copy[100];
         strcpy(entrada_copy,entrada);
-
-        printf("segundo tok: %s\n",argumento);
     
         // Switch de opções do cliente
         if(strcmp(comando,"backup") == 0){
             handle_backup(argumento, endereco, soquete, &sequencia, bufferResposta);
         }
         else if(strcmp(comando, "restaura") == 0){
-            printf("Restaura\n");
             handle_restaura(argumento, endereco, soquete, &sequencia, bufferResposta);
         }
         else if (strcmp(comando,"verifica") == 0){

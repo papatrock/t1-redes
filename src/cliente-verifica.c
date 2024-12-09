@@ -32,7 +32,10 @@ void handle_verifica(char* nome_arq, struct sockaddr_ll endereco, int soquete, u
             printf("Erro ao verifica arquivo, verifique se o arquivo existe\n");
             return;
         }
+        #ifdef _DEBUG_
         printf("checksum cliente: %s\nchecksum servidor: %s\n",checksum_cliente,checksum_servidor);
+
+        #endif
 
 
         if(strcmp((char*)checksum_cliente,(char*)checksum_servidor) == 0)

@@ -38,7 +38,6 @@ void handle_restaura(char* nome_arq, struct sockaddr_ll endereco, int soquete, u
     printf("Mensagem enviada com sucesso, Aguardando resposta:\n");
     #endif
 
-    //TODO implementar timout
     while (!recebeResposta(soquete, bufferResposta, mensagem, endereco)){}
 
     #ifdef _DEBUG
@@ -52,7 +51,6 @@ void handle_restaura(char* nome_arq, struct sockaddr_ll endereco, int soquete, u
     {
     case OK_TAM:
         file_size = atol((char*) data);
-        printf("Tamanho do arquivo: %ld\n", file_size);
         break;
     case ERRO:
         printf("ERRO: %s\n", getErrors(data));
@@ -74,50 +72,8 @@ void handle_restaura(char* nome_arq, struct sockaddr_ll endereco, int soquete, u
     strcpy(path, "Cliente/"); 
     strcat(path, nome_arq);
     FILE *arq;
-    if(access(path, F_OK) == 0) {
-        char restaura_action;
-        do
-        {
-            printf("Já existe um arquivo com esse nome. O que deseja fazer? (Digite o número que está ao lado da opção desejada)\n");
-            printf("1. Sobrescrever\n");
-            printf("2. Criar um novo arquivo (enumerado, por exemplo <nome_arquivo_x> onde x eh a versao ainda nao existente)\n");
-            printf("3. Cancelar\n");
-
-            scanf("%c", &restaura_action);
-            switch (restaura_action)
-            {
-            case '1':
-                arq = fopen(path, "w");
-                break;
-            case '2':
-                char *path_new_file = NULL; /* inicializa como NULL para evitar warning */
-                int result = get_next_file_version(path, &path_new_file);
-
-                if(result == MEMORY_ALLOCATION_FAILURE) {
-                    printf("Falha ao criar arquivo\n");
-                    // Handle memory allocation failure
-                    return;
-                } else if(result == MAX_VERSIONS_REACHED) {
-                    printf("Maximo de versoes de arquivos foi alcancada\n");
-                    // Handle max versions reached
-                    return;
-                }
-                arq = fopen(path_new_file, "w");
-                printf("Arquivo criado com sucesso: %s\n", path_new_file);
-                free(path_new_file);
-                break;
-            case '3':
-                printf("Operação cancelada\n");
-                // TODO mandar mensagem de erro (criar novo tipo de erro)
-                return;
-            default:
-                printf("Opção inválida\n");
-                break;
-            }
-        } while(restaura_action != '1' && restaura_action != '2' && restaura_action != '3');
-    }
-    else
-        arq = fopen(path, "w");
+    
+    arq = fopen(path, "wb+");
 
     if(!arq) {
         printf("Erro ao abrir arquivo\n");
@@ -153,6 +109,6 @@ void handle_restaura(char* nome_arq, struct sockaddr_ll endereco, int soquete, u
             sendto(soquete, &mensagem, sizeof(mensagem), 0 ,(struct sockaddr*)&endereco, sizeof(endereco));
         }
     }
-    printf("Terminou de receber dados\n\n");
+    printf("\n--------------------\nArquivo restaurado com sucesso\n");
     fclose(arq);
 }

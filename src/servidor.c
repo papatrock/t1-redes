@@ -82,7 +82,6 @@ int main() {
                     }
 
                     timeout_ativado = 1; 
-                    printf("Timeout ativado após a primeira mensagem válida.\n");
             }
 
             //Coleta endereço do cliente
@@ -116,20 +115,14 @@ int main() {
             //verifica tipo
             switch (getTipo(buffer))
             {
-            case BACKUP:
-                #ifdef _DEBUG_ 
-                printf("ENTROU NO BACKUP\n");
-                
-                #endif
-                
+            case BACKUP:  
                 handle_backup(buffer, soquete, endereco,sequencia);
                 break;
             case RESTAURA:
-                printf("chamou restaura\n");
-                handle_restaura(buffer, soquete, endereco);
+                handle_restaura(buffer, soquete, endereco,&sequencia);
+                break;
             
             case VERIFICA:
-                printf("chamou verifica\n");
                 handle_verifica(buffer, soquete, endereco,sequencia);
                 break;
 
@@ -144,7 +137,6 @@ int main() {
             return 1;
         }
         timeout_ativado = 0; // Marca que o timeout foi desativado
-        printf("Timeout desativado.\n");
         //limpa o buffer
         memset(buffer, 0, sizeof(buffer));
     }

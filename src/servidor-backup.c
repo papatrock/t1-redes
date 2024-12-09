@@ -27,8 +27,6 @@ void handle_backup(unsigned char* buffer, int soquete, struct sockaddr_ll path_a
         resposta = criaMensagem(0,0,OK,"Ok!");
         if(!enviaResposta(soquete,path_addr,resposta))
                 printf("Erro ao enviar resposta\n");
-        else
-            printf("Resposta enviada com sucesso, aguardando tamanho\n");
         sequencia = sequencia + 1;
 
         recebeResposta(soquete,buffer, resposta, path_addr);
@@ -43,8 +41,6 @@ void handle_backup(unsigned char* buffer, int soquete, struct sockaddr_ll path_a
         
         if(!enviaResposta(soquete,path_addr,resposta))
             printf("Erro ao enviar resposta\n");
-        else
-            printf("Resposta enviada com sucesso, aguardando dados\n");
         
 
         //TODO tratar erros aqui

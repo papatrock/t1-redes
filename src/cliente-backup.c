@@ -73,11 +73,8 @@ void handle_backup(char *segundo_token,struct sockaddr_ll endereco,int soquete,u
                 while ((bytesLidos = fread(buffer, 1, sizeof(buffer), arq)) > 0)
                 {
                     mensagem = criaMensagem(bytesLidos,*sequencia,DADOS,buffer);
-                    //memcpy(mensagem.dados, buffer, bytesLidos);
-                    //mensagem.tamanho = bytesLidos;
 
                     (*sequencia) = (*sequencia) + 1;
-                    //mensagem.sequencia = (*sequencia);
                     #ifdef _DEBUG_
                     printf("\nMandando pacote:\n");
                     printMensagemEstruturada(mensagem);
