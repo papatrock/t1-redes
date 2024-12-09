@@ -2,8 +2,6 @@
 #include "../include/cliente-restaura.h"
 #include "../include/utils.h"
 
-#include <unistd.h> // Para usleep (no Windows, use <windows.h> e Sleep)
-#include <pthread.h> // Para trabalhar com threads
 
 int carregando = 0;
 
@@ -66,12 +64,14 @@ int main(int argc, char *argv[]){
             pthread_create(&thread, NULL, mensagem_carregando, "Fazendo backup");
             handle_backup(argumento, endereco, soquete, &sequencia, bufferResposta);
             carregando = 0;
+            pthread_join(thread, NULL);
         }
         else if(strcmp(comando, "restaura") == 0){
             carregando = 1;
             pthread_create(&thread, NULL, mensagem_carregando, "Restaurando arquivo");
             handle_restaura(argumento, endereco, soquete, &sequencia, bufferResposta);
             carregando = 0;
+            pthread_join(thread, NULL);
         }
         else if (strcmp(comando,"verifica") == 0){
             handle_verifica(argumento, endereco, soquete, &sequencia, bufferResposta);

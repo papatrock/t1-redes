@@ -1,4 +1,6 @@
 #include "../include/soquete-lib.h"
+#include <unistd.h> // Para usleep (no Windows, use <windows.h> e Sleep)
+#include <pthread.h> 
 
 // int recebeResposta(int soquete,unsigned char *buffer);
 
