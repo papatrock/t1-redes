@@ -51,7 +51,7 @@ struct protocolo{
     unsigned char tamanho; //6 bits
     unsigned char sequencia; //5 bits
     unsigned char tipo; //5 bits
-    unsigned char dados[63]; //0 até 63 bytes
+    char dados[63]; //0 até 63 bytes
     unsigned char CRC; //8 bits
 };
 
@@ -79,7 +79,7 @@ unsigned char getSequencia(unsigned char *mensagem);
 
 unsigned char getTipo(unsigned char *mensagem);
 
-unsigned char *getDados(unsigned char *mensagem);
+char *getDados(unsigned char *mensagem);
 
 unsigned char getCRC(unsigned char *mensagem);
 

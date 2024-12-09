@@ -62,12 +62,16 @@ void inicializaSockaddr_ll(struct sockaddr_ll *sockaddr, int ifindex, unsigned c
  */
 protocolo_t criaMensagem(unsigned char tamanho, unsigned char sequencia, unsigned char tipo, char *dados) {
     protocolo_t mensagem;
-
+    
+    printf("dados dentro do cria:%s\n",dados);
     mensagem.marcador = MARCADOR;
     mensagem.tamanho = 0b00111111 & tamanho;
     mensagem.sequencia = 0b00011111 & sequencia;
     mensagem.tipo = 0b00011111 & tipo;
+    printf("DEBUG NO CRIA:\ndados:%s,tamanho:%d\n",dados,tamanho);
+    memset(mensagem.dados, 0, sizeof(mensagem.dados));
     memcpy(mensagem.dados, dados, tamanho);
+    printf("mensagem.dados dentro do cria:%s\n",mensagem.dados);
     mensagem.CRC = 0b00000000;
 
     unsigned char *mensagem_concat = calloc(68,sizeof(unsigned char) * 68);
@@ -149,7 +153,7 @@ void printMensagem(unsigned char *mensagem) {
     printf("\n");
 
     printf("Dados (ASCII): ");
-        printf("%s", mensagem+3);
+        printf("%s", getDados(mensagem));
     
     printf("\n");
 
@@ -173,7 +177,7 @@ void printMensagemEstruturada(protocolo_t mensagem) {
 
     printf("\n");
 
-    printf("Dados (ASCII): %s",(char*)mensagem.dados);
+    printf("Dados (ASCII): %s",mensagem.dados);
     printf("\n");
 
     printf("CRC: %d\n",mensagem.CRC);
@@ -209,29 +213,37 @@ void printMensagemEstruturadaBinario(protocolo_t mensagem) {
 
 }
 unsigned char getMarcador(unsigned char *mensagem){
-    return mensagem[0];
+    struct protocolo* protocolo = (struct protocolo*)mensagem;
+    return protocolo->marcador;
 }
 
 unsigned char getTamanho(unsigned char *mensagem){
-    return (mensagem[1] & 0b00111111);
+    struct protocolo* protocolo = (struct protocolo*)mensagem;
+    return protocolo->tamanho;
 }
 
 unsigned char getSequencia(unsigned char *mensagem){
-    return mensagem[2] & 0b00011111;
+    struct protocolo* protocolo = (struct protocolo*)mensagem;
+    return protocolo->sequencia;
 }
 
 unsigned char getTipo(unsigned char *mensagem)
 {
-    return mensagem[3] & 0b00011111;
+    struct protocolo* protocolo = (struct protocolo*)mensagem;
+    return protocolo->tipo;
 }
 
 
-unsigned char *getDados(unsigned char *mensagem){
-    return &mensagem[4];
+char *getDados(unsigned char *mensagem) {
+    // Faz o cast para a estrutura 'protocolo' para acessar diretamente 'dados'
+    struct protocolo* protocolo = (struct protocolo*)mensagem;
+    return protocolo->dados;
+    
 }
 
 unsigned char getCRC(unsigned char *mensagem){
-    return mensagem[67];
+    struct protocolo* protocolo = (struct protocolo*)mensagem;
+    return protocolo->CRC;
 }
 
 char *getErrors(unsigned char *errors) {
@@ -354,7 +366,7 @@ unsigned char *empacota(unsigned char *mensagem) {
 
     int pos = 0;
     int tamanho = getTamanho(mensagem);
-    unsigned char *dados = getDados(mensagem);
+    char *dados = getDados(mensagem);
     unsigned char campos[] = {getMarcador(mensagem), getTamanho(mensagem), getSequencia(mensagem), getTipo(mensagem)};
     for (int i = 0; i < 4; i++) {
         for (int bit = 7; bit >= 0; bit--) {

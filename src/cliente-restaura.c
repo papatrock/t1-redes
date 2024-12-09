@@ -46,7 +46,7 @@ void handle_restaura(char* nome_arq, struct sockaddr_ll endereco, int soquete, u
     printMensagem(bufferResposta);
     #endif
 
-    unsigned char* data = getDados(bufferResposta);
+    char* data = getDados(bufferResposta);
     long int file_size = -1;
     switch (getTipo(bufferResposta))
     {

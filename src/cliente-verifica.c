@@ -22,17 +22,26 @@ void handle_verifica(char* nome_arq, struct sockaddr_ll endereco, int soquete, u
     switch (getTipo(bufferResposta))
     {
     case OK_CHECKSUM:
-        unsigned char *checksum_servidor = getDados(bufferResposta);
-        char path[100];
-        strcpy(path, "Cliente/");
+        char *checksum_servidor = getDados(bufferResposta);
+        char *path = calloc(strlen("Cliente/") + strlen(nome_arq) + 1, sizeof(char));
+
+        strcpy(path, "Cliente/");   
         strcat(path, nome_arq);
         char *checksum_cliente = checksum(path);
+        if(!checksum_cliente){
+            printf("Erro ao verifica arquivo, verifique se o arquivo existe\n");
+            return;
+        }
         printf("checksum cliente: %s\nchecksum servidor: %s\n",checksum_cliente,checksum_servidor);
+
+
         if(strcmp((char*)checksum_cliente,(char*)checksum_servidor) == 0)
             printf("Arquivo atualizado\n");
         else
             printf("Arquivo desatualizado\n");
-        break;
+
+        free(path);
+    break;
 
     case ERRO:
         printf("Erro ao acessar arquivo no servidor, verifique se ele existe\n");
@@ -41,9 +50,5 @@ void handle_verifica(char* nome_arq, struct sockaddr_ll endereco, int soquete, u
     default:
         break;
     }
-
-    
-    
-        
-
+ 
 }

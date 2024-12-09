@@ -1,9 +1,10 @@
 #include "../include/servidor.h"
 
-void handle_backup(unsigned char* buffer, int soquete, struct sockaddr_ll path_addr,unsigned char sequencia,protocolo_t resposta)
+void handle_backup(unsigned char* buffer, int soquete, struct sockaddr_ll path_addr,unsigned char sequencia)
 {
     // Abre  pasta Backup e abre (ou criar) o  arquivo com o nome solicitado para receber dados
     char path[100]; 
+    protocolo_t resposta;
     strcpy(path, "Backup/"); 
     printf("%s\n",(char*)buffer);
     strcat(path, (char*)getDados(buffer)); 

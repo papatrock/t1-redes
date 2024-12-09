@@ -22,39 +22,33 @@ int main(int argc, char *argv[]){
     }
     
     inicializaSockaddr_ll(&endereco,ifindex,0);
-    
-    char *entrada = malloc(63 * sizeof(char));
-    if (!entrada) {
-        fprintf(stderr, "erro ao alocar memória\n");
-        return -1;
-    }
+    char entrada[64] = {0};
+    char comando[64] = {0};
+    char argumento[64] = {0};
     menu();
-        
     fgets(entrada, 63, stdin);
 
-    // Remove o caractere de nova linha ('\n') que fgets adiciona
-    entrada[strcspn(entrada, "\n")] = '\0';
+    sscanf(entrada, "%63s %63s", comando, argumento);
 
-    while (strcmp(entrada, "sair") != 0) {
+    while (strcmp(comando, "sair") != 0) {
         
         // Separar a entrada em dois tokens usando espaço como delimitador
         char entrada_copy[100];
         strcpy(entrada_copy,entrada);
 
-        char *primeiro_token = strtok(entrada_copy, " ");
-        char *segundo_token = strtok(NULL, " ");
+        printf("segundo tok: %s\n",argumento);
     
         // Switch de opções do cliente
-        if(strcmp(primeiro_token,"backup") == 0){
-            handle_backup(segundo_token, endereco, soquete, &sequencia, bufferResposta);
+        if(strcmp(comando,"backup") == 0){
+            handle_backup(argumento, endereco, soquete, &sequencia, bufferResposta);
         }
-        else if(strcmp(primeiro_token, "restaura") == 0){
+        else if(strcmp(comando, "restaura") == 0){
             printf("Restaura\n");
-            handle_restaura(segundo_token, endereco, soquete, &sequencia, bufferResposta);
+            handle_restaura(argumento, endereco, soquete, &sequencia, bufferResposta);
         }
-        else if (strcmp(primeiro_token,"verifica") == 0){
+        else if (strcmp(comando,"verifica") == 0){
             printf("Verifica\n");
-            handle_verifica(segundo_token, endereco, soquete, &sequencia, bufferResposta);
+            handle_verifica(argumento, endereco, soquete, &sequencia, bufferResposta);
         }
         else{
             printf("opção invalida, tente novamente:\n");
@@ -63,10 +57,11 @@ int main(int argc, char *argv[]){
         menu();
         fflush(stdin);
         fgets(entrada, 63, stdin);
-        entrada[strcspn(entrada, "\n")] = '\0';
+        sscanf(entrada, "%63s %63s", comando, argumento);
+        memset(bufferResposta,0,68 * sizeof(unsigned char));
+        
     }
 
-    free(entrada);
     free(bufferResposta);
 	close(soquete);
     return 0;
