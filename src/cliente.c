@@ -2,12 +2,36 @@
 #include "../include/cliente-restaura.h"
 #include "../include/utils.h"
 
+#include <unistd.h> // Para usleep (no Windows, use <windows.h> e Sleep)
+#include <pthread.h> // Para trabalhar com threads
+
+int carregando = 0;
+
+void *mensagem_carregando(void *mensagem) {
+    const char *animacao[] = {".  ", ".. ", "...", "   "}; // Estados da animação
+    int frames = sizeof(animacao) / sizeof(animacao[0]);
+    int frame = 0;
+
+    while (carregando) {
+        printf("\r%s%s", (char *)mensagem, animacao[frame]); // Atualiza os pontos
+        fflush(stdout);
+        frame = (frame + 1) % frames; // Avança para o próximo estado da animação
+        usleep(500000); 
+    }
+
+
+    return NULL;
+}
+
 void menu(){
     printf("\n---------------------\nopções disponiveis:\nbackup <nome do arquivo>\nrestaura <nome do arquivo>\nverifica <nome do arquivo>\nsair\n-----------------\n");
 }
 
 int main(int argc, char *argv[]){
+
+    pthread_t thread;
     
+
     unsigned char sequencia;
     sequencia = 0;
 
@@ -38,13 +62,18 @@ int main(int argc, char *argv[]){
     
         // Switch de opções do cliente
         if(strcmp(comando,"backup") == 0){
+            carregando = 1;
+            pthread_create(&thread, NULL, mensagem_carregando, "Fazendo backup");
             handle_backup(argumento, endereco, soquete, &sequencia, bufferResposta);
+            carregando = 0;
         }
         else if(strcmp(comando, "restaura") == 0){
+            carregando = 1;
+            pthread_create(&thread, NULL, mensagem_carregando, "Restaurando arquivo");
             handle_restaura(argumento, endereco, soquete, &sequencia, bufferResposta);
+            carregando = 0;
         }
         else if (strcmp(comando,"verifica") == 0){
-            printf("Verifica\n");
             handle_verifica(argumento, endereco, soquete, &sequencia, bufferResposta);
         }
         else{
