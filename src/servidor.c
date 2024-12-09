@@ -114,8 +114,7 @@ int main() {
 
 // ----------------------------- MENSAGEM VALIDA ----------------------------------------
             //verifica tipo
-            unsigned char tipo = getTipo(buffer);
-            switch (tipo)
+            switch (getTipo(buffer))
             {
             case BACKUP:
                 #ifdef _DEBUG_ 
@@ -123,7 +122,7 @@ int main() {
                 
                 #endif
                 
-                handle_backup(buffer, soquete, endereco,sequencia,resposta);
+                handle_backup(buffer, soquete, endereco,sequencia);
                 break;
             case RESTAURA:
                 printf("chamou restaura\n");
@@ -131,7 +130,7 @@ int main() {
             
             case VERIFICA:
                 printf("chamou verifica\n");
-                handle_verifica(buffer, soquete, endereco,sequencia,resposta);
+                handle_verifica(buffer, soquete, endereco,sequencia);
                 break;
 
                 default:
@@ -146,6 +145,8 @@ int main() {
         }
         timeout_ativado = 0; // Marca que o timeout foi desativado
         printf("Timeout desativado.\n");
+        //limpa o buffer
+        memset(buffer, 0, sizeof(buffer));
     }
 
     close(soquete);
