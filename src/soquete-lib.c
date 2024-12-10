@@ -80,16 +80,13 @@ protocolo_t criaMensagem(unsigned char tamanho, unsigned char sequencia, unsigne
     mensagem_concat = empacotaStruct(&mensagem);
     unsigned char crc = geraCRC(mensagem_concat);
     mensagem.CRC = mensagem.CRC +  crc;
-    #ifdef _DEBUG_
-    printf("CRC calculado no criamsg: %u\n",mensagem.CRC);
-    #endif
 
     free(mensagem_concat);
     return mensagem;
 }
 
 
-int recebeResposta(int soquete,unsigned char *buffer, protocolo_t ultima_mensagem, struct sockaddr_ll endereco) {
+int recebeResposta(int soquete,unsigned char *buffer, protocolo_t ultima_mensagem, struct sockaddr_ll endereco, unsigned char *sequencia) {
 
     struct sockaddr_ll addr;
     socklen_t addr_len = sizeof(addr);
@@ -109,7 +106,6 @@ int recebeResposta(int soquete,unsigned char *buffer, protocolo_t ultima_mensage
         } else {
             // Outro erro
             fprintf(stderr, "Erro ao receber dados\n");
-            free(buffer);
             return 0;
     }
 }
@@ -124,6 +120,17 @@ int recebeResposta(int soquete,unsigned char *buffer, protocolo_t ultima_mensage
         sendto(soquete, &ultima_mensagem, sizeof(ultima_mensagem), 0,(struct sockaddr*)&endereco, sizeof(endereco));
         return 0;
     }
+
+    if(*sequencia != getSequencia(buffer)){
+        #ifdef _DEBUG_
+        printf("Erro de sequência. Esperado: %d, Recebido: %d\n", *sequencia, getSequencia(buffer));
+        #endif
+        protocolo_t mensagem = criaMensagem(0,*sequencia,NACK,"");
+        sendto(soquete, &mensagem, sizeof(mensagem), 0,(struct sockaddr*)&endereco, sizeof(endereco));
+        return 0;
+    }
+
+
 
     return 1;   
 }
@@ -268,9 +275,7 @@ void setErrorMessage(char error_code, char* error_message) {
 
 
 unsigned char geraCRC(unsigned char *ptr) {
-    #ifdef _DEBUG_
-    printf("\n--------------\ncalculo do crc em:\n%s\n",ptr);
-    #endif
+
     int tam = (int)strlen((char*)ptr);
     unsigned char *ptr_copia = malloc(tam);
     if (!ptr_copia) {
@@ -301,18 +306,13 @@ unsigned char geraCRC(unsigned char *ptr) {
         }
     }
     char_to_binary(ptr_copia + deslocamento, 8, &crc);
-    #ifdef _DEBUG_
-    printf("crc = %u\n-----------fim do gera CRC----------\n",crc);
-    #endif
+
     free(ptr_copia);
     return crc;
 }
 
 unsigned char *empacotaStruct(protocolo_t *mensagem) {
-    #ifdef _DEBUG_
-    printf("mensagem a ser empacotada:\n");
-    printMensagemEstruturada(*mensagem);
-    #endif
+
     int tamanho_bits = 68 * 8;  
     unsigned char *empacotado = malloc(tamanho_bits + 1);
     if (!empacotado) {
@@ -342,11 +342,7 @@ unsigned char *empacotaStruct(protocolo_t *mensagem) {
     }
 
     empacotado[tamanho_bits] = '\0';
-    #ifdef _DEBUG_
-    if(mensagem->tipo == DADOS)
-        printf("É UM DADO SENDO EMPACOTADO NA STRUCT\n");
-    printf("empacota (struct)\n%s\n",empacotado);
-    #endif
+
     return empacotado;
 }
 
@@ -382,10 +378,6 @@ unsigned char *empacota(unsigned char *mensagem) {
     }
 
     empacotado[tamanho_bits] = '\0';
-
-    #ifdef _DEBUG_
-    printf("empacota (mesagem)\n%s\n",empacotado);
-    #endif
     return empacotado;
 }
 
@@ -407,9 +399,6 @@ int verificaCRC(unsigned char *mensagem){
     mensagem_concat = empacota(mensagem);
     unsigned char resto = geraCRC(mensagem_concat);
     
-    #ifdef _DEBUG_
-    printf("----------VERIFICA CRC----------------\nRESTO DO CRC:%d\nSe 0 é porq deu certo\n-----------FIM DO VERIFICA ----------------",resto);
-    #endif
     if(resto == 0)
         return 1;
 
