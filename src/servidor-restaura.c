@@ -20,11 +20,10 @@ void handle_restaura(unsigned char* buffer, int soquete, struct sockaddr_ll path
         //Manda um erro
         char error_message[2];
         setErrorMessage(ARQUIVO_NAO_ENCONTRADO, error_message);
-        resposta = criaMensagem(strlen(error_message), 0, ERRO, error_message);
+        resposta = criaMensagem(strlen(error_message), *sequencia, ERRO, error_message);
         if(!enviaResposta(soquete, path_addr, resposta))
             printf("Erro ao enviar resposta\n");
-        else
-            printf("Resposta enviada com sucesso\n");
+        *sequencia = (*sequencia + 1) % 32;
 
         return;
     }
@@ -37,11 +36,10 @@ void handle_restaura(unsigned char* buffer, int soquete, struct sockaddr_ll path
         //Manda um erro
         char error_message[2];
         setErrorMessage(ARQUIVO_NAO_ENCONTRADO, error_message);
-        resposta = criaMensagem(strlen(error_message), 0, ERRO, error_message);
+        resposta = criaMensagem(strlen(error_message), *sequencia, ERRO, error_message);
         if(!enviaResposta(soquete, path_addr, resposta))
             printf("Erro ao enviar resposta\n");
-        else
-            printf("Resposta enviada com sucesso\n");
+        *sequencia = (*sequencia + 1) % 32;
 
         return;
     }
@@ -50,13 +48,12 @@ void handle_restaura(unsigned char* buffer, int soquete, struct sockaddr_ll path
 
     char msg[15];
     sprintf(msg, "%ld", size);
-    resposta = criaMensagem(strlen(msg), 0, OK_TAM, msg);
+    resposta = criaMensagem(strlen(msg), *sequencia, OK_TAM, msg);
     if(!enviaResposta(soquete, path_addr, resposta))
         printf("Erro ao enviar resposta\n");
-    else
-        printf("Resposta enviada com sucesso\n");
+    *sequencia = (*sequencia + 1) % 32;
 
-    while(!recebeResposta(soquete, buffer, resposta, path_addr)) {}
+    while(!recebeResposta(soquete, buffer, resposta, path_addr,sequencia)) {}
 
     char bufferArquivo[63]; //Buffer de leitura de arquivo
     size_t bytesLidos;
@@ -71,7 +68,7 @@ void handle_restaura(unsigned char* buffer, int soquete, struct sockaddr_ll path
     {
         resposta = criaMensagem(bytesLidos,*sequencia,DADOS,bufferArquivo);
 
-        (*sequencia) = (*sequencia) + 1;
+        *sequencia = (*sequencia + 1) % 32;
         #ifdef _DEBUG_
         printf("\nMandando pacote:\n");
         printMensagemEstruturada(resposta);
@@ -81,7 +78,7 @@ void handle_restaura(unsigned char* buffer, int soquete, struct sockaddr_ll path
             printf("Erro ao enviar resposta\n");
 
         //Aguarda resposta
-        while (!recebeResposta(soquete,buffer, resposta, path_addr)){}
+        while (!recebeResposta(soquete,buffer, resposta, path_addr,sequencia)){}
         #ifdef _DEBUG_
         printf("\nPacote recebido:\n");
         printMensagem(buffer);
@@ -96,7 +93,7 @@ void handle_restaura(unsigned char* buffer, int soquete, struct sockaddr_ll path
                 printf("Erro ao enviar resposta\n");
             else
                 printf("Resposta enviada com sucesso\n");
-            while (!recebeResposta(soquete,buffer, resposta, path_addr)){}
+            while (!recebeResposta(soquete,buffer, resposta, path_addr,sequencia)){}
         }
 
         //tratar outros erros aqui
@@ -106,11 +103,11 @@ void handle_restaura(unsigned char* buffer, int soquete, struct sockaddr_ll path
         //ACK
     }
     //Fim da transmissão de dados
-    resposta = criaMensagem(0,0,FIM_TRANSMISSAO_DADOS,"Fim da transmissão de dados");
+    resposta = criaMensagem(0,*sequencia,FIM_TRANSMISSAO_DADOS,"Fim da transmissão de dados");
     if(!enviaResposta(soquete, path_addr, resposta))
         printf("Erro ao enviar resposta\n");
-    else
-        printf("Resposta enviada com sucesso\n");
+    *sequencia = (*sequencia + 1) % 32;
+
     printf("\nRestaura feito com sucesso\n\n");
     fclose(arq);
 

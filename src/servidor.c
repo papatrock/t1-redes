@@ -57,7 +57,7 @@ int main() {
         socklen_t addr_len = sizeof(addr);
         protocolo_t resposta;
         int bytes_recebidos = recvfrom(soquete, buffer, sizeof(buffer), 0, (struct sockaddr*)&addr, &addr_len);
-
+        sequencia = 0;
 
         if (bytes_recebidos == -1) {
             perror("Erro ao receber dados");
@@ -100,7 +100,6 @@ int main() {
             qtd_erro--;
             #endif
 
-
             // Verifica CRC, se 0 envia um nack
             if(!verificaCRC(buffer)){
                 #ifdef _DEBUG_
@@ -110,20 +109,29 @@ int main() {
                 enviaResposta(soquete,endereco,resposta);
                 continue;
             }
-
+            /*
+            if ((sequencia % 32) != getSequencia(buffer)) {
+                #ifdef _DEBUG_
+                printf("Erro: Sequência incorreta. Esperado: %d, Recebido: %d\n", sequencia, getSequencia(buffer));
+                #endif
+                resposta = criaMensagem(0, sequencia, NACK, "");
+                enviaResposta(soquete, endereco, resposta);
+                continue;
+            }
+            */
 // ----------------------------- MENSAGEM VALIDA ----------------------------------------
             //verifica tipo
             switch (getTipo(buffer))
             {
             case BACKUP:  
-                handle_backup(buffer, soquete, endereco,sequencia);
+                handle_backup(buffer, soquete, endereco,&sequencia);
                 break;
             case RESTAURA:
                 handle_restaura(buffer, soquete, endereco,&sequencia);
                 break;
             
             case VERIFICA:
-                handle_verifica(buffer, soquete, endereco,sequencia);
+                handle_verifica(buffer, soquete, endereco,&sequencia);
                 break;
 
                 default:

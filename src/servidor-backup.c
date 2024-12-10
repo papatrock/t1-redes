@@ -1,6 +1,6 @@
 #include "../include/servidor.h"
 
-void handle_backup(unsigned char* buffer, int soquete, struct sockaddr_ll path_addr,unsigned char sequencia)
+void handle_backup(unsigned char* buffer, int soquete, struct sockaddr_ll path_addr,unsigned char *sequencia)
 {
     // Abre  pasta Backup e abre (ou criar) o  arquivo com o nome solicitado para receber dados
     char path[100]; 
@@ -13,7 +13,7 @@ void handle_backup(unsigned char* buffer, int soquete, struct sockaddr_ll path_a
     {
         printf("erro ao abrir o arquivo, enviando nack\n");
         //TODO troca nack para código de erro
-        resposta = criaMensagem(strlen("Erro ao abrir arquivo"),sequencia,NACK,"Erro ao abrir arquivo");
+        resposta = criaMensagem(strlen("Erro ao abrir arquivo"),*sequencia,NACK,"Erro ao abrir arquivo");
         if(!enviaResposta(soquete,path_addr,resposta))
             printf("Erro ao enviar resposta\n");
         else
@@ -24,30 +24,31 @@ void handle_backup(unsigned char* buffer, int soquete, struct sockaddr_ll path_a
         printf("Abriu arquivo\n"); 
         #endif /* ifdef  */
         //Manda um ok e aguarda o tamanho
-        resposta = criaMensagem(0,0,OK,"Ok!");
+        resposta = criaMensagem(0,*sequencia,OK,"Ok!");
         if(!enviaResposta(soquete,path_addr,resposta))
                 printf("Erro ao enviar resposta\n");
-        sequencia = sequencia + 1;
 
-        recebeResposta(soquete,buffer, resposta, path_addr);
+        *sequencia = (*sequencia + 1) % 32;
+
+        recebeResposta(soquete,buffer, resposta, path_addr,sequencia);
         //TODO verificar se cabe em disco
         #ifdef _DEBUG_
-        printf("recebeu dados:\n");
+        printf("recebeu o tamanho:\n");
         printMensagem(buffer);
         #endif
         // SE COUBER:
         
-        resposta = criaMensagem(3,sequencia,OK,"Ok!");
+        resposta = criaMensagem(3,*sequencia,OK,"Ok!");
         
         if(!enviaResposta(soquete,path_addr,resposta))
             printf("Erro ao enviar resposta\n");
         
-
+        *sequencia = (*sequencia + 1) % 32;
         //TODO tratar erros aqui
         //RECEBENDO DADOS  
         while (getTipo(buffer) != FIM_TRANSMISSAO_DADOS){
 
-            while(!recebeResposta(soquete,buffer, resposta, path_addr)){}
+            while(!recebeResposta(soquete,buffer, resposta, path_addr,sequencia)){}
             //dados
             if(getTipo(buffer) == DADOS){
                 #ifdef _DEBUG_ 
@@ -60,10 +61,10 @@ void handle_backup(unsigned char* buffer, int soquete, struct sockaddr_ll path_a
                 memset(dados, 0, sizeof(dados)); // limpa o buffer
                 memcpy(dados, getDados(buffer), getTamanho(buffer));
                 fwrite(dados,getTamanho(buffer),1,arq);
-                resposta = criaMensagem(0,sequencia,ACK,"");
+                resposta = criaMensagem(0,*sequencia,ACK,"");
                 enviaResposta(soquete,path_addr,resposta);
-                sequencia = sequencia + 1;
             }
+            *sequencia = (*sequencia + 1) % 32;
         }
         printf("Terminou de receber dados\n");
         fclose(arq);

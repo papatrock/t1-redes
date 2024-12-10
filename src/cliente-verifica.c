@@ -12,7 +12,7 @@ void handle_verifica(char* nome_arq, struct sockaddr_ll endereco, int soquete, u
     printf("Mensagem enviada com sucesso, Aguardando resposta:\n");
     #endif
 
-    while (!recebeResposta(soquete, bufferResposta, mensagem, endereco)){}
+    while (!recebeResposta(soquete, bufferResposta, mensagem, endereco,sequencia)){}
 
     #ifdef _DEBUG
     printf("Resposta recebida:\n");

@@ -53,13 +53,14 @@ int main(int argc, char *argv[]){
     sscanf(entrada, "%63s %63s", comando, argumento);
 
     while (strcmp(comando, "sair") != 0) {
-        
+        sequencia = 0;
         // Separar a entrada em dois tokens usando espaço como delimitador
         char entrada_copy[100];
         strcpy(entrada_copy,entrada);
     
         // Switch de opções do cliente
         if(strcmp(comando,"backup") == 0){
+            
             carregando = 1;
             pthread_create(&thread, NULL, mensagem_carregando, "Fazendo backup");
             handle_backup(argumento, endereco, soquete, &sequencia, bufferResposta);
