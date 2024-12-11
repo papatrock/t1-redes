@@ -2,7 +2,7 @@
 #include "../include/utils.h"
 #include "../include/servidor.h"
 
-void handle_restaura(unsigned char* buffer, int soquete, struct sockaddr_ll path_addr,char *sequencia) {
+void handle_restaura(unsigned char* buffer, int soquete, struct sockaddr_ll path_addr,unsigned char *sequencia) {
     #ifdef _DEBUG_ 
     printf("ENTROU NO RESTAURA\n");
     #endif
@@ -54,6 +54,11 @@ void handle_restaura(unsigned char* buffer, int soquete, struct sockaddr_ll path
     *sequencia = (*sequencia + 1) % 32;
 
     while(!recebeResposta(soquete, buffer, resposta, path_addr,sequencia)) {}
+
+    if(getTipo(buffer) == ERRO){
+        printf("Erro: %s\n",getDados(buffer));
+        return;
+    }
 
     char bufferArquivo[63]; //Buffer de leitura de arquivo
     size_t bytesLidos;

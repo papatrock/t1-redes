@@ -52,18 +52,14 @@ char *checksum(const char *nome_arquivo) {
         return NULL;
     }
 
-    // Monta o comando a ser executado
     snprintf(comando, sizeof(comando), "md5sum %s", nome_arquivo);
 
-    // Executa o comando
     fp = popen(comando, "r");
     if (fp == NULL) {
-        //perror("Erro ao executar md5sum");
         free(resultado);
         return NULL;
     }
 
-    // Lê o hash (32 caracteres)
     if (fscanf(fp, "%32s", resultado) != 1) {
         fprintf(stderr, "Erro ao ler o hash MD5\n");
         free(resultado);
@@ -71,7 +67,6 @@ char *checksum(const char *nome_arquivo) {
         return NULL;
     }
 
-    // Fecha o processo
     pclose(fp);
 
     return resultado;

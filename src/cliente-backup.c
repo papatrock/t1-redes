@@ -60,8 +60,9 @@ void handle_backup(char *segundo_token,struct sockaddr_ll endereco,int soquete,u
                 while (!recebeResposta(soquete,bufferResposta, mensagem, endereco,sequencia)){}
 
                 //TODO tradar outras respostas
-                if(getTipo(bufferResposta) != OK){
-                    printf("não recebeu um ok\n");
+                if(getTipo(bufferResposta) == ERRO){
+                    
+                    printf("Erro: %s\n",getDados(bufferResposta));
                     return;
                 }
                 

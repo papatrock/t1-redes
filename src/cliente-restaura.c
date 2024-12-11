@@ -1,31 +1,6 @@
 #include "../include/cliente-restaura.h"
 #include "../include/soquete-lib.h"
 
-int get_next_file_version(char* path, char **path_new_file) {
-    int i = 1;
-    char file_version[2];
-
-    (*path_new_file) = calloc(100, sizeof(char));
-    if(!(*path_new_file)) {
-        return MEMORY_ALLOCATION_FAILURE;
-    }
-    // monta o nome do arquivo com a versao dele no final
-    do {
-        strcpy((*path_new_file), path);
-        strcat((*path_new_file), "_");
-
-        sprintf(file_version, "%d", i);
-        strcat((*path_new_file), file_version);
-    } while(access((*path_new_file), F_OK) == 0 && i++ < MAX_FILE_VERSION);
-
-    if(i == MAX_FILE_VERSION) {
-        free((*path_new_file));
-        return MAX_VERSIONS_REACHED;
-    }
-
-    return 0;
-}
-
 void handle_restaura(char* nome_arq, struct sockaddr_ll endereco, int soquete, unsigned char *sequencia, unsigned char *bufferResposta) {
     // envia nome do arquivo
     protocolo_t mensagem = criaMensagem(strlen(nome_arq),(*sequencia),RESTAURA,nome_arq);
@@ -50,7 +25,20 @@ void handle_restaura(char* nome_arq, struct sockaddr_ll endereco, int soquete, u
     switch (getTipo(bufferResposta))
     {
     case OK_TAM:
-        file_size = atol((char*) data);
+        file_size = atol(data);
+        unsigned long espaco_disponivel = verificar_espaco_disco("/");
+        if(atoi(getDados(bufferResposta)) > espaco_disponivel){
+            //sem espaço no disco, envia um erro
+            (*sequencia) = (*sequencia + 1) % 32;
+            mensagem = criaMensagem(strlen("Sem espaco disponivel"),*sequencia,ERRO,"Sem espaco disponivel");
+        
+            if(sendto(soquete, &mensagem, sizeof(mensagem), 0 ,(struct sockaddr*)&endereco, sizeof(endereco)) == -1) {
+                printf("erro ao enviar mensagem\n");
+                return;
+            }
+            printf("Erro: Sem espaco disponivel\n");
+            return;
+        }
         break;
     case ERRO:
         printf("ERRO: %s\n", getErrors(data));

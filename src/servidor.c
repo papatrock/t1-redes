@@ -37,6 +37,8 @@ int main() {
     struct sockaddr_ll endereco;
     int ifindex = if_nametoindex(INTERFACE);
     unsigned char sequencia = 0;
+
+    
     
     int soquete = criaSocket(INTERFACE);
 
@@ -135,6 +137,8 @@ int main() {
                 break;
 
                 default:
+
+                break;
             }
 
         }

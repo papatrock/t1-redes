@@ -18,6 +18,7 @@
 #include <sys/types.h>
 #include "../include/utils.h"
 #include <errno.h> // para erros de timeout
+#include <sys/statvfs.h>
 
 
 
@@ -83,7 +84,7 @@ char *getDados(unsigned char *mensagem);
 
 unsigned char getCRC(unsigned char *mensagem);
 
-char *getErrors(unsigned char *errors);
+char *getErrors(char *errors);
 
 void setErrorMessage(char error_code, char* error_message);
 
@@ -96,5 +97,7 @@ void printBits(unsigned char byte);
 unsigned char *empacota(unsigned char *mensagem);
 
 unsigned char *empacotaStruct(protocolo_t *mensagem);
+
+unsigned long verificar_espaco_disco(const char *caminho);
 
 #endif

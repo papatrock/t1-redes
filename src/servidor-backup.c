@@ -36,8 +36,17 @@ void handle_backup(unsigned char* buffer, int soquete, struct sockaddr_ll path_a
         printf("recebeu o tamanho:\n");
         printMensagem(buffer);
         #endif
+
         // SE COUBER:
+        unsigned long espaco_disponivel = verificar_espaco_disco("/");
+        if(atoi(getDados(buffer)) > espaco_disponivel){
+            //sem espaço no disco, envia um erro
+            resposta = criaMensagem(strlen("Sem espaco disponivel"),*sequencia,ERRO,"Sem espaco disponivel");
         
+            if(!enviaResposta(soquete,path_addr,resposta))
+                printf("Erro ao enviar resposta\n");
+            return;
+        }
         resposta = criaMensagem(3,*sequencia,OK,"Ok!");
         
         if(!enviaResposta(soquete,path_addr,resposta))

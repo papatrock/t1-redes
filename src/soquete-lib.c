@@ -250,7 +250,7 @@ unsigned char getCRC(unsigned char *mensagem){
     return protocolo->CRC;
 }
 
-char *getErrors(unsigned char *errors) {
+char *getErrors(char *errors) {
     switch (errors[0])
     {
     case SEM_PERMISSAO:
@@ -405,5 +405,20 @@ int verificaCRC(unsigned char *mensagem){
     free(mensagem_concat);
     return 0;
 
+}
+
+unsigned long verificar_espaco_disco(const char *caminho) {
+    struct statvfs info;
+
+    // Obter informações sobre o sistema de arquivos
+    if (statvfs(caminho, &info) != 0) {
+        perror("Erro ao obter informações de espaço em disco");
+        return 0; // Retorna 0 em caso de erro
+    }
+
+    // Calcular o espaço disponível
+    unsigned long espaco_disponivel = info.f_bsize * info.f_bfree;
+
+    return espaco_disponivel;
 }
 
